@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Fruit Loop PVD — LGBTQIA+ Events in Providence</title>
+  <meta name="description" content="Your guide to LGBTQIA+ events, performers, DJs, bartenders, and venues in Providence, RI and beyond.">
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-0Q68NG80PP"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-0Q68NG80PP');
+  </script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;1,9..40,300&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <canvas id="grainCanvas" aria-hidden="true"></canvas>
+
+  <header class="site-header">
+    <div class="header-inner">
+      <div class="logo-block" onclick="showPage('calendar')" style="cursor:pointer;display:flex;align-items:center;gap:1rem">
+        <img src="FL_logo_black.png" alt="The Fruit Loop Providence" class="site-logo-img">
+        <div>
+          <div class="logo">Fruit Loop <em>PVD</em></div>
+          <div class="logo-sub">LGBTQIA+ Events &nbsp;·&nbsp; Providence &amp; Beyond</div>
+        </div>
+      </div>
+      <button class="nav-toggle" id="navToggle" aria-label="Toggle menu">&#9776;</button>
+      <nav class="site-nav" id="siteNav">
+        <div class="nav-item" data-page="about" onclick="showPage('about',this)">About</div>
+        <div class="nav-item active" data-page="calendar" onclick="showPage('calendar',this)">Calendar</div>
+        <div class="nav-dropdown">
+          <div class="nav-item nav-dropdown-trigger">People &#9662;</div>
+          <div class="nav-dropdown-menu">
+            <div class="nav-dropdown-item" data-page="performers" onclick="showPage('performers',this)">Performers</div>
+            <div class="nav-dropdown-item" data-page="djs" onclick="showPage('djs',this)">DJs</div>
+            <div class="nav-dropdown-item" data-page="bartenders" onclick="showPage('bartenders',this)">Bartenders</div>
+          </div>
+        </div>
+        <div class="nav-item" data-page="venues" onclick="showPage('venues',this)">Venues</div>
+        <a class="nav-merch" href="https://fruitlooppvd.printful.me/" target="_blank" rel="noopener">Merch &#8599;</a>
+      </nav>
+    </div>
+  </header>
+
+  <main id="mainContent">
+
+    <!-- CALENDAR PAGE -->
+    <div class="page active" id="page-calendar">
+      <div class="page-hero">
+        <div class="hero-deco" aria-hidden="true">APR</div>
+        <div class="hero-eyebrow">Providence &amp; surrounding area</div>
+        <div class="hero-title">What's<em>Happening</em></div>
+        <div class="hero-sub" id="calendarSub">Loading events...</div>
+      </div>
+      <div id="calendarMainView">
+        <div class="filters-bar" id="calendarFilters">
+          <span class="filter-label">Filter:</span>
+          <div class="chip on" id="chip-all" onclick="setCalFilter('all',this)">All events</div>
+        </div>
+        <div class="events-wrap" id="eventsWrap">
+          <div class="loading-state">Loading events...</div>
+        </div>
+      </div>
+      <div class="detail-view" id="eventDetailView" style="display:none">
+        <div id="eventDetailContent"></div>
+      </div>
+    </div>
+
+    <!-- PERFORMERS PAGE -->
+    <div class="page" id="page-performers">
+      <div id="perfListView">
+        <div class="page-hero">
+          <div class="hero-eyebrow">Drag artists, hosts &amp; entertainers</div>
+          <div class="hero-title">Performers</div>
+          <div class="hero-sub">Click anyone to see their upcoming shows</div>
+        </div>
+        <div class="controls">
+          <div class="controls-row">
+            <span class="ctrl-label">Category</span>
+            <div class="chip on" id="pchip-all" onclick="setPerfFilter('all',this)">All</div>
+          </div>
+          <div class="filters-bar" id="perfFilterBar" style="background:transparent;border:none;padding:0 2rem 0.75rem">
+          </div>
+          <div class="controls-row">
+            <span class="ctrl-label">Sort</span>
+            <div class="sort-btn active" id="perf-sort" onclick="toggleSort('perf',this)">A–Z &#8597;</div>
+          </div>
+        </div>
+        <div class="profile-grid" id="perfGrid">
+          <div class="loading-state">Loading performers...</div>
+        </div>
+      </div>
+      <div class="detail-view" id="perfDetailView" style="display:none">
+        <div class="back-btn" onclick="backToList('performers')">&#8592; All performers</div>
+        <div id="perfDetailContent"></div>
+      </div>
+    </div>
+
+    <!-- DJS PAGE -->
+    <div class="page" id="page-djs">
+      <div id="djListView">
+        <div class="page-hero">
+          <div class="hero-eyebrow">The people keeping the floor alive</div>
+          <div class="hero-title">DJs</div>
+          <div class="hero-sub">Click any DJ to see their upcoming sets</div>
+        </div>
+        <div class="controls">
+          <div class="controls-row">
+            <span class="ctrl-label">Residency</span>
+            <div class="chip on" onclick="setDjFilter('res','all',this)">All</div>
+            <div class="chip" onclick="setDjFilter('res','local',this)"><span class="dot dot-local"></span>Local resident</div>
+            <div class="chip" onclick="setDjFilter('res','visitor',this)"><span class="dot dot-visitor"></span>Regular visitor</div>
+            <div class="chip" onclick="setDjFilter('res','guest',this)"><span class="dot dot-guest"></span>Guest booking</div>
+          </div>
+          <div class="controls-row">
+            <span class="ctrl-label">Upcoming only</span>
+            <div class="chip" id="dj-upcoming-chip" onclick="toggleDjUpcoming(this)">Has upcoming shows</div>
+            <div class="sort-btn active" id="dj-sort" onclick="toggleSort('dj',this)">A–Z &#8597;</div>
+          </div>
+        </div>
+        <div class="results-bar"><span class="results-count" id="djCount"></span></div>
+        <div class="profile-grid" id="djGrid">
+          <div class="loading-state">Loading DJs...</div>
+        </div>
+      </div>
+      <div class="detail-view" id="djDetailView" style="display:none">
+        <div class="back-btn" onclick="backToList('djs')">&#8592; All DJs</div>
+        <div id="djDetailContent"></div>
+      </div>
+    </div>
+
+    <!-- BARTENDERS PAGE -->
+    <div class="page" id="page-bartenders">
+      <div id="barListView">
+        <div class="page-hero">
+          <div class="hero-eyebrow">Behind the stick</div>
+          <div class="hero-title">Bartenders</div>
+          <div class="hero-sub">The faces you love to see at the end of the bar</div>
+        </div>
+        <div class="controls">
+          <div class="controls-row">
+            <span class="ctrl-label">Sort</span>
+            <div class="sort-btn active" id="bar-sort" onclick="toggleSort('bar',this)">A–Z &#8597;</div>
+          </div>
+        </div>
+        <div class="profile-grid" id="barGrid">
+          <div class="loading-state">Loading bartenders...</div>
+        </div>
+      </div>
+      <div class="detail-view" id="barDetailView" style="display:none">
+        <div class="back-btn" onclick="backToList('bartenders')">&#8592; All bartenders</div>
+        <div id="barDetailContent"></div>
+      </div>
+    </div>
+
+    <!-- VENUES PAGE -->
+    <div class="page" id="page-venues">
+      <div id="venueListView">
+        <div class="page-hero">
+          <div class="hero-eyebrow">Providence &amp; surrounding area</div>
+          <div class="hero-title">Venues</div>
+          <div class="hero-sub">Hover the <span class="info-i">i</span> on any filter to learn what it means &nbsp;·&nbsp; Select multiple types to combine</div>
+        </div>
+        <div class="controls">
+          <div class="controls-row">
+            <span class="ctrl-label">Venue type</span>
+          </div>
+          <div class="controls-row">
+            <span class="ctrl-label">Neighborhood</span>
+            <div class="chip on" id="vhood-all" onclick="setVenueHood('all',this)">All areas</div>
+            <div class="chip" id="vhood-downtown" onclick="setVenueHood('downtown',this)">Downtown PVD</div>
+            <div class="chip" id="vhood-eastside" onclick="setVenueHood('eastside',this)">East Side</div>
+            <div class="chip" id="vhood-westend" onclick="setVenueHood('westend',this)">West End</div>
+            <div class="chip" id="vhood-eastprov" onclick="setVenueHood('eastprov',this)">East Providence</div>
+            <div class="chip" id="vhood-greater" onclick="setVenueHood('greater',this)">Greater RI</div>
+          </div>
+          <div class="controls-row">
+            <span class="ctrl-label">Sort</span>
+            <div class="sort-btn active" id="venue-sort" onclick="toggleSort('venue',this)">A–Z &#8597;</div>
+          </div>
+        </div>
+        <div class="active-filters" id="venueActiveFilters"></div>
+        <div class="results-bar"><span class="results-count" id="venueCount"></span></div>
+        <div class="venue-grid" id="venueGrid">
+          <div class="loading-state">Loading venues...</div>
+        </div>
+      </div>
+      <div class="detail-view" id="venueDetailView" style="display:none">
+        <div class="back-btn" onclick="backToList('venues')">&#8592; All venues</div>
+        <div id="venueDetailContent"></div>
+      </div>
+    </div>
+
+    <!-- ABOUT PAGE -->
+    <div class="page" id="page-about">
+      <div class="page-hero">
+        <div class="hero-eyebrow">Providence, RI</div>
+        <div class="hero-title">About<em>Fruit Loop</em></div>
+        <img src="FL_logo_black.png" alt="The Fruit Loop Providence logo" class="about-logo">
+      </div>
+      <div class="about-body">
+        <div class="about-section">
+          <h2>What is Fruit Loop PVD?</h2>
+          <p>In the most literal sense, the Fruit Loop is a series of LGBTQ+ bars and nightclubs in downtown Providence, all within easy walking distance of each other — at least in the summer when it's nice out. The name has been around since at least 2006, though I'll be honest, I'm not entirely sure where it came from.</p>
+          <p>In a bigger sense, the Fruit Loop is the thriving LGBTQIA+ community of Providence itself. A celebration of queer joy in the smallest big city in the country.</p>
+          <p>And in the sense of this site and our social media pages, it's a resource to help us find each other, support each other, and celebrate each other — to lift up our voices together and magnify our impact and our visibility.</p>
+        </div>
+        <div class="about-section about-graham">
+          <h2>Hi, I'm Graham.</h2>
+          <p>I'll be honest with you — I created this out of a little bit of pettiness. My friends could never remember which events we were going to on a given weekend, and some weekends there is a <em>lot</em> going on. But from that pettiness, Fruit Loop PVD has grown into something really spectacular — a reflection of how truly incredible the LGBTQIA+ community of this city is.</p>
+        </div>
+        <div class="about-section">
+          <h2>Want to add your event?</h2>
+          <p>If you're a venue, promoter, or performer with an upcoming event you'd like listed, use our <span class="text-link" onclick="showPage('submit')">event submission form</span>. We review everything before it goes live.</p>
+        </div>
+        <div class="about-section">
+          <h2>Follow along</h2>
+          <p>We're most active on social media — find us for last-minute updates, cancellations, and community news.</p>
+          <div class="social-links">
+            <a href="https://www.instagram.com/fruit_looppvd/" target="_blank" rel="noopener" class="social-btn">Instagram</a>
+            <a href="https://www.tiktok.com/@fruit.loop.pvd" target="_blank" rel="noopener" class="social-btn">TikTok</a>
+            <a href="https://www.facebook.com/groups/923286946177583" target="_blank" rel="noopener" class="social-btn">Facebook community</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SUBMIT EVENT PAGE -->
+    <div class="page" id="page-submit">
+      <div class="page-hero">
+        <div class="hero-eyebrow">Get listed</div>
+        <div class="hero-title">Submit<em>an Event</em></div>
+        <div class="hero-sub">We review all submissions before they go live — usually within 48 hours</div>
+      </div>
+      <div class="submit-wrap">
+        <form class="submit-form" id="submitForm">
+          <div class="form-group">
+            <label>Event name <span class="req">*</span></label>
+            <input type="text" name="eventName" required placeholder="e.g. Glitter Bomb">
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Date <span class="req">*</span></label>
+              <input type="date" name="date" required>
+            </div>
+            <div class="form-group">
+              <label>Time <span class="req">*</span></label>
+              <input type="time" name="time" required>
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Venue <span class="req">*</span></label>
+            <input type="text" name="venue" required placeholder="e.g. Fête, Providence">
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Event type <span class="req">*</span></label>
+              <select name="eventType" required>
+                <option value="">Select one</option>
+                <option>Drag show</option>
+                <option>Dance night</option>
+                <option>Brunch</option>
+                <option>Bingo / game night</option>
+                <option>DJ set</option>
+                <option>Live performance</option>
+                <option>Community event</option>
+                <option>Other</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Age restriction</label>
+              <select name="ageRestriction">
+                <option value="">Select one</option>
+                <option>All ages</option>
+                <option>18+</option>
+                <option>21+</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Cover charge</label>
+              <input type="text" name="cover" placeholder="e.g. $10, Free, $5 suggested">
+            </div>
+            <div class="form-group">
+              <label>Ticket link</label>
+              <input type="url" name="ticketUrl" placeholder="https://...">
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Performers / DJs (if applicable)</label>
+            <input type="text" name="performers" placeholder="e.g. Rhonda Rotten, DJ Velveeta">
+          </div>
+          <div class="form-group">
+            <label>Accessibility info</label>
+            <input type="text" name="accessibility" placeholder="e.g. Wheelchair accessible, gender-neutral restrooms">
+          </div>
+          <div class="form-group">
+            <label>Anything else we should know?</label>
+            <textarea name="notes" rows="3" placeholder="Content warnings, special guests, dress code..."></textarea>
+          </div>
+          <div class="form-group">
+            <label>Your name &amp; contact <span class="req">*</span></label>
+            <input type="text" name="contact" required placeholder="Name and email or Instagram handle">
+          </div>
+          <button type="submit" class="submit-btn">Submit event</button>
+          <p class="form-note">We'll follow up if we have questions. Submissions don't guarantee listing.</p>
+        </form>
+        <div class="submit-success" id="submitSuccess" style="display:none">
+          <div class="success-icon">&#10003;</div>
+          <h2>Got it — thanks!</h2>
+          <p>We'll review your submission and get back to you within 48 hours.</p>
+          <div class="back-btn" onclick="showPage('calendar')" style="margin-top:2rem">&#8592; Back to calendar</div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <div class="footer-logo">Fruit Loop <em>PVD</em></div>
+      <div class="footer-links">
+        <a href="https://www.instagram.com/fruit_looppvd/" target="_blank" rel="noopener">Instagram</a>
+        <a href="https://www.tiktok.com/@fruit.loop.pvd" target="_blank" rel="noopener">TikTok</a>
+        <a href="https://www.facebook.com/groups/923286946177583" target="_blank" rel="noopener">Facebook</a>
+        <span class="footer-divider">·</span>
+        <span class="text-link" onclick="showPage('submit')">Submit an event</span>
+        <span class="footer-divider">·</span>
+        <a href="https://fruitlooppvd.printful.me/" target="_blank" rel="noopener">Merch</a>
+      </div>
+      <div class="footer-copy">A community resource for Providence LGBTQIA+ nightlife</div>
+    </div>
+  </footer>
+
+  <script src="js/data.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
