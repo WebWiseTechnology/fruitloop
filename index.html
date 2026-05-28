@@ -15,6 +15,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;1,9..40,300&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
   <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
@@ -22,7 +23,7 @@
 
   <header class="site-header">
     <div class="header-inner">
-      <div class="logo-block" onclick="showPage('calendar')" style="cursor:pointer;display:flex;align-items:center;gap:1rem">
+      <div class="logo-block" onclick="showPage('calendar')">
         <img src="FL_logo_black.png" alt="The Fruit Loop Providence" class="site-logo-img">
         <div>
           <div class="logo">Fruit Loop <em>PVD</em></div>
@@ -42,7 +43,7 @@
           </div>
         </div>
         <div class="nav-item" data-page="venues" onclick="showPage('venues',this)">Venues</div>
-        <a class="nav-merch" href="https://fruitlooppvd.printful.me/" target="_blank" rel="noopener">Merch &#8599;</a>
+        <a class="nav-merch" href="https://fruitlooppvd.myshopify.com/" target="_blank" rel="noopener">Merch &#8599;</a>
       </nav>
     </div>
   </header>
@@ -51,19 +52,65 @@
 
     <!-- CALENDAR PAGE -->
     <div class="page active" id="page-calendar">
-      <div class="page-hero">
-        <div class="hero-deco" aria-hidden="true">APR</div>
+      <div class="page-hero calendar-hero-slim has-left-icon has-glass-icon">
+        <img src="FL_glass.webp" alt="Fruit Loop cocktail icon" class="hero-left-icon hero-glass" onerror="this.onerror=null;this.src='FL_whole_inverted.png';">
         <div class="hero-eyebrow">Providence &amp; surrounding area</div>
-        <div class="hero-title">What's<em>Happening</em></div>
-        <div class="hero-sub" id="calendarSub">Loading events...</div>
+        <div class="hero-title">What's Happening</div>
       </div>
       <div id="calendarMainView">
-        <div class="filters-bar" id="calendarFilters">
-          <span class="filter-label">Filter:</span>
-          <div class="chip on" id="chip-all" onclick="setCalFilter('all',this)">All events</div>
-        </div>
-        <div class="events-wrap" id="eventsWrap">
-          <div class="loading-state">Loading events...</div>
+        <div class="calendar-shell">
+          <div class="calendar-sidebar">
+            <div class="calendar-sidebar-header">
+              <button class="sort-btn calendar-sidebar-toggle" id="calendarSidebarToggle" onclick="toggleCalendarSidebar()" aria-label="Hide calendar" title="Hide calendar"></button>
+              <a class="sort-btn instagram-link" href="https://www.instagram.com/fruit_looppvd/?hl=en" target="_blank" rel="noopener" aria-label="Open Instagram">
+                <svg fill="currentColor" width="20px" height="20px" viewBox="-2 -2 24 24" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMinYMin" class="jam jam-instagram"><path d="M14.017 0h-8.07A5.954 5.954 0 0 0 0 5.948v8.07a5.954 5.954 0 0 0 5.948 5.947h8.07a5.954 5.954 0 0 0 5.947-5.948v-8.07A5.954 5.954 0 0 0 14.017 0zm3.94 14.017a3.94 3.94 0 0 1-3.94 3.94h-8.07a3.94 3.94 0 0 1-3.939-3.94v-8.07a3.94 3.94 0 0 1 3.94-3.939h8.07a3.94 3.94 0 0 1 3.939 3.94v8.07z"/><path d="M9.982 4.819A5.17 5.17 0 0 0 4.82 9.982a5.17 5.17 0 0 0 5.163 5.164 5.17 5.17 0 0 0 5.164-5.164A5.17 5.17 0 0 0 9.982 4.82zm0 8.319a3.155 3.155 0 1 1 0-6.31 3.155 3.155 0 0 1 0 6.31z"/><circle cx="15.156" cy="4.858" r="1.237"/></svg>
+              </a>
+            </div>
+            <div class="calendar-sidebar-body" id="calendarSidebarBody">
+              <div class="filters-bar" id="calendarFilters">
+                <span class="filter-label">Filter:</span>
+                <div class="calendar-filter-wrap" id="calendarFilterWrap">
+                  <button class="sort-btn calendar-filter-toggle" id="calendarFilterToggle" onclick="toggleCalendarFilterMenu()">Event types</button>
+                  <div class="calendar-filter-menu" id="calendarFilterMenu"></div>
+                </div>
+                <div class="calendar-filter-wrap" id="calendarVenueWrap">
+                  <button class="sort-btn calendar-filter-toggle" id="calendarVenueToggle" onclick="toggleCalendarVenueMenu()">Venues</button>
+                  <div class="calendar-filter-menu calendar-filter-menu-narrow" id="calendarVenueMenu"></div>
+                </div>
+                <div class="calendar-filter-wrap" id="calendarNeighborhoodWrap">
+                  <button class="sort-btn calendar-filter-toggle" id="calendarNeighborhoodToggle" onclick="toggleCalendarNeighborhoodMenu()">Neighborhood</button>
+                  <div class="calendar-filter-menu calendar-filter-menu-narrow" id="calendarNeighborhoodMenu"></div>
+                </div>
+                <div class="calendar-filter-wrap" id="calendarPerformerWrap">
+                  <button class="sort-btn calendar-filter-toggle" id="calendarPerformerToggle" onclick="toggleCalendarPerformerMenu()">Performers</button>
+                  <div class="calendar-filter-menu" id="calendarPerformerMenu"></div>
+                </div>
+                <div class="calendar-filter-wrap" id="calendarOrganizerWrap">
+                  <button class="sort-btn calendar-filter-toggle" id="calendarOrganizerToggle" onclick="toggleCalendarOrganizerMenu()">Organizers</button>
+                  <div class="calendar-filter-menu calendar-filter-menu-narrow" id="calendarOrganizerMenu"></div>
+                </div>
+                <div class="calendar-filter-wrap" id="calendarCoverWrap">
+                  <button class="sort-btn calendar-filter-toggle" id="calendarCoverToggle" onclick="toggleCalendarCoverMenu()">Cover</button>
+                  <div class="calendar-filter-menu calendar-filter-menu-narrow" id="calendarCoverMenu"></div>
+                </div>
+              </div>
+              <div id="calendarViewWrap">
+                <div class="loading-state">Loading events...</div>
+              </div>
+            </div>
+          </div>
+          <div class="instagram-embed-panel" id="instagramEmbedPanel">
+            <div class="instagram-embed-copy">
+              <h3>Follow @fruit_looppvd</h3>
+              <p>Explore our feed for show announcements, venue vibes, and community highlights.</p>
+              <!-- <a class="instagram-btn" href="https://www.instagram.com/fruit_looppvd/?hl=en" target="_blank" rel="noopener">Open Instagram</a> -->
+            </div>
+            <blockquote class="instagram-media" data-instgrm-permalink="https://www.instagram.com/fruit_looppvd/?utm_source=ig_embed&amp;utm_campaign=loading" data-instgrm-version="14" style=" background:#FFF; border:0; border-radius:3px; box-shadow:0 0 1px 0 rgba(0,0,0,0.5),0 1px 10px 0 rgba(0,0,0,0.15); margin: 1px; max-width:540px; padding:0; width:99.375%; width:-webkit-calc(100% - 2px); width:calc(100% - 2px);"><div style="padding:16px;"> <a href="https://www.instagram.com/fruit_looppvd/?utm_source=ig_embed&amp;utm_campaign=loading" style=" background:#FFFFFF; line-height:0; padding:0 0; text-align:center; text-decoration:none; width:100%;" target="_blank"> <div style=" display: flex; flex-direction: row; align-items: center;"> <div style="background-color: #F4F4F4; border-radius: 50%; flex-grow: 0; height: 40px; margin-right: 14px; width: 40px;"></div> <div style="display: flex; flex-direction: column; flex-grow: 1; justify-content: center;"> <div style=" background-color: #F4F4F4; border-radius: 4px; flex-grow: 0; height: 14px; margin-bottom: 6px; width: 100px;"></div> <div style=" background-color: #F4F4F4; border-radius: 4px; flex-grow: 0; height: 14px; width: 60px;"></div></div></div><div style="padding: 19% 0;"></div> <div style="display:block; height:50px; margin:0 auto 12px; width:50px;"><svg width="50px" height="50px" viewBox="0 0 60 60" version="1.1" xmlns="https://www.w3.org/2000/svg" xmlns:xlink="https://www.w3.org/1999/xlink"><g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd"><g transform="translate(-511.000000, -20.000000)" fill="#000000"><g><path d="M556.869,30.41 C554.814,30.41 553.148,32.076 553.148,34.131 C553.148,36.186 554.814,37.852 556.869,37.852 C558.924,37.852 560.59,36.186 560.59,34.131 C560.59,32.076 558.924,30.41 556.869,30.41 M541,60.657 C535.114,60.657 530.342,55.887 530.342,50 C530.342,44.114 535.114,39.342 541,39.342 C546.887,39.342 551.658,44.114 551.658,50 C551.658,55.887 546.887,60.657 541,60.657 M541,33.886 C532.1,33.886 524.886,41.1 524.886,50 C524.886,58.899 532.1,66.113 541,66.113 C549.9,66.113 557.115,58.899 557.115,50 C557.115,41.1 549.9,33.886 541,33.886 M565.378,62.101 C565.244,65.022 564.756,66.606 564.346,67.663 C563.803,69.06 563.154,70.057 562.106,71.106 C561.058,72.155 560.06,72.803 558.662,73.347 C557.607,73.757 556.021,74.244 553.102,74.378 C549.944,74.521 548.997,74.552 541,74.552 C533.003,74.552 532.056,74.521 528.898,74.378 C525.979,74.244 524.393,73.757 523.338,73.347 C521.94,72.803 520.942,72.155 519.894,71.106 C518.846,70.057 518.197,69.06 517.654,67.663 C517.244,66.606 516.755,65.022 516.623,62.101 C516.479,58.943 516.448,57.996 516.448,50 C516.448,42.003 516.479,41.056 516.623,37.899 C516.755,34.978 517.244,33.391 517.654,32.338 C518.197,30.938 518.846,29.942 519.894,28.894 C520.942,27.846 521.94,27.196 523.338,26.654 C524.393,26.244 525.979,25.756 528.898,25.623 C532.057,25.479 533.004,25.448 541,25.448 C548.997,25.448 549.943,25.479 553.102,25.623 C556.021,25.756 557.607,26.244 558.662,26.654 C560.06,27.196 561.058,27.846 562.106,28.894 C563.154,29.942 563.803,30.938 564.346,32.338 C564.756,33.391 565.244,34.978 565.378,37.899 C565.522,41.056 565.552,42.003 565.552,50 C565.552,57.996 565.522,58.943 565.378,62.101 M570.82,37.631 C570.674,34.438 570.167,32.258 569.425,30.349 C568.659,28.377 567.633,26.702 565.965,25.035 C564.297,23.368 562.623,22.342 560.652,21.575 C558.743,20.834 556.562,20.326 553.369,20.18 C550.169,20.033 549.148,20 541,20 C532.853,20 531.831,20.033 528.631,20.18 C525.438,20.326 523.257,20.834 521.349,21.575 C519.376,22.342 517.703,23.368 516.035,25.035 C514.368,26.702 513.342,28.377 512.574,30.349 C511.834,32.258 511.326,34.438 511.181,37.631 C511.035,40.831 511,41.851 511,50 C511,58.147 511.035,59.17 511.181,62.369 C511.326,65.562 511.834,67.743 512.574,69.651 C513.342,71.625 514.368,73.296 516.035,74.965 C517.703,76.634 519.376,77.658 521.349,78.425 C523.257,79.167 525.438,79.673 528.631,79.82 C531.831,79.965 532.853,80.001 541,80.001 C549.148,80.001 550.169,79.965 553.369,79.82 C556.562,79.673 558.743,79.167 560.652,78.425 C562.623,77.658 564.297,76.634 565.965,74.965 C567.633,73.296 568.659,71.625 569.425,69.651 C570.167,67.743 570.674,65.562 570.82,62.369 C570.966,59.17 571,58.147 571,50 C571,41.851 570.966,40.831 570.82,37.631"></path></g></g></g></svg></div><div style="padding-top: 8px;"> <div style=" color:#3897f0; font-family:Arial,sans-serif; font-size:14px; font-style:normal; font-weight:550; line-height:18px;">View this profile on Instagram</div></div><div style="padding: 12.5% 0;"></div> <div style="display: flex; flex-direction: row; margin-bottom: 14px; align-items: center;"><div> <div style="background-color: #F4F4F4; border-radius: 50%; height: 12.5px; width: 12.5px; transform: translateX(0px) translateY(7px);"></div> <div style="background-color: #F4F4F4; height: 12.5px; transform: rotate(-45deg) translateX(3px) translateY(1px); width: 12.5px; flex-grow: 0; margin-right: 14px; margin-left: 2px;"></div> <div style="background-color: #F4F4F4; border-radius: 50%; height: 12.5px; width: 12.5px; transform: translateX(9px) translateY(-18px);"></div></div><div style="margin-left: 8px;"> <div style=" background-color: #F4F4F4; border-radius: 50%; flex-grow: 0; height: 20px; width: 20px;"></div> <div style=" width: 0; height: 0; border-top: 2px solid transparent; border-left: 6px solid #f4f4f4; border-bottom: 2px solid transparent; transform: translateX(16px) translateY(-4px) rotate(30deg)"></div></div><div style="margin-left: auto;"> <div style=" width: 0px; border-top: 8px solid #F4F4F4; border-right: 8px solid transparent; transform: translateY(16px);"></div> <div style=" background-color: #F4F4F4; flex-grow: 0; height: 12px; width: 16px; transform: translateY(-4px);"></div> <div style=" width: 0; height: 0; border-top: 8px solid #F4F4F4; border-left: 8px solid transparent; transform: translateY(-4px) translateX(8px);"></div></div></div> <div style="display: flex; flex-direction: column; flex-grow: 1; justify-content: center; margin-bottom: 24px;"> <div style=" background-color: #F4F4F4; border-radius: 4px; flex-grow: 0; height: 14px; margin-bottom: 6px; width: 224px;"></div> <div style=" background-color: #F4F4F4; border-radius: 4px; flex-grow: 0; height: 14px; width: 144px;"></div></div></a><p style=" color:#c9c8cd; font-family:Arial,sans-serif; font-size:14px; line-height:17px; margin-bottom:0; margin-top:8px; overflow:hidden; padding:8px 0 7px; text-align:center; text-overflow:ellipsis; white-space:nowrap;"><a href="https://www.instagram.com/fruit_looppvd/?utm_source=ig_embed&amp;utm_campaign=loading" style=" color:#c9c8cd; font-family:Arial,sans-serif; font-size:14px; font-style:normal; font-weight:normal; line-height:17px;" target="_blank">Fruit Loop</a> (@<a href="https://www.instagram.com/fruit_looppvd/?utm_source=ig_embed&amp;utm_campaign=loading" style=" color:#c9c8cd; font-family:Arial,sans-serif; font-size:14px; font-style:normal; font-weight:normal; line-height:17px;" target="_blank">fruit_looppvd</a>) • Instagram photos and videos</p></div></blockquote>
+              <script async src="//www.instagram.com/embed.js"></script>
+          </div>
+          <div class="calendar-events-panel" id="calendarEventsWrap">
+            <div class="loading-state">Loading events...</div>
+          </div>
         </div>
       </div>
       <div class="detail-view" id="eventDetailView" style="display:none">
@@ -74,23 +121,31 @@
     <!-- PERFORMERS PAGE -->
     <div class="page" id="page-performers">
       <div id="perfListView">
-        <div class="page-hero">
+        <div class="page-hero calendar-hero-slim has-left-icon has-glass-icon">
+          <img src="FL_glass.webp" alt="Fruit Loop cocktail icon" class="hero-left-icon hero-glass" onerror="this.onerror=null;this.src='FL_whole_inverted.png';">
           <div class="hero-eyebrow">Drag artists, hosts &amp; entertainers</div>
           <div class="hero-title">Performers</div>
           <div class="hero-sub">Click anyone to see their upcoming shows</div>
         </div>
-        <div class="controls">
-          <div class="controls-row">
-            <span class="ctrl-label">Category</span>
-            <div class="chip on" id="pchip-all" onclick="setPerfFilter('all',this)">All</div>
+        <div class="filters-bar page-filters" id="perfFiltersBar">
+          <span class="filter-label">Filter:</span>
+          <div class="calendar-filter-wrap page-filter-wrap" id="perfFilterWrap">
+            <button class="sort-btn calendar-filter-toggle" id="perfFilterToggle" onclick="togglePageFilterMenu('perfFilterWrap','perfFilterToggle')">Category</button>
+            <div class="calendar-filter-menu" id="perfFilterMenu"></div>
           </div>
-          <div class="filters-bar" id="perfFilterBar" style="background:transparent;border:none;padding:0 2rem 0.75rem">
-          </div>
-          <div class="controls-row">
-            <span class="ctrl-label">Sort</span>
-            <div class="sort-btn active" id="perf-sort" onclick="toggleSort('perf',this)">A–Z &#8597;</div>
+          <div class="calendar-filter-wrap page-filter-wrap" id="perfSortWrap">
+            <button class="sort-btn calendar-filter-toggle" id="perfSortToggle" onclick="togglePageFilterMenu('perfSortWrap','perfSortToggle')">Sort</button>
+            <div class="calendar-filter-menu calendar-filter-menu-narrow" id="perfSortMenu">
+              <div class="cal-filter-group">
+                <div class="cal-filter-options" style="grid-template-columns:1fr;">
+                  <label class="cal-filter-option"><input type="radio" name="perfSort" value="az" checked onchange="setSortDirection('perf', true)"><span>A-Z</span></label>
+                  <label class="cal-filter-option"><input type="radio" name="perfSort" value="za" onchange="setSortDirection('perf', false)"><span>Z-A</span></label>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
+        <div class="results-bar"><span class="results-count" id="perfCount"></span></div>
         <div class="profile-grid" id="perfGrid">
           <div class="loading-state">Loading performers...</div>
         </div>
@@ -104,23 +159,58 @@
     <!-- DJS PAGE -->
     <div class="page" id="page-djs">
       <div id="djListView">
-        <div class="page-hero">
+        <div class="page-hero calendar-hero-slim has-left-icon has-glass-icon">
+          <img src="FL_glass.webp" alt="Fruit Loop cocktail icon" class="hero-left-icon hero-glass" onerror="this.onerror=null;this.src='FL_whole_inverted.png';">
           <div class="hero-eyebrow">The people keeping the floor alive</div>
           <div class="hero-title">DJs</div>
           <div class="hero-sub">Click any DJ to see their upcoming sets</div>
         </div>
-        <div class="controls">
-          <div class="controls-row">
-            <span class="ctrl-label">Residency</span>
-            <div class="chip on" onclick="setDjFilter('res','all',this)">All</div>
-            <div class="chip" onclick="setDjFilter('res','local',this)"><span class="dot dot-local"></span>Local resident</div>
-            <div class="chip" onclick="setDjFilter('res','visitor',this)"><span class="dot dot-visitor"></span>Regular visitor</div>
-            <div class="chip" onclick="setDjFilter('res','guest',this)"><span class="dot dot-guest"></span>Guest booking</div>
+        <div class="filters-bar page-filters" id="djFiltersBar">
+          <span class="filter-label">Filter:</span>
+          <div class="calendar-filter-wrap page-filter-wrap" id="djResidencyWrap">
+            <button class="sort-btn calendar-filter-toggle" id="djResidencyToggle" onclick="togglePageFilterMenu('djResidencyWrap','djResidencyToggle')">Residency</button>
+            <div class="calendar-filter-menu calendar-filter-menu-narrow" id="djResidencyMenu">
+              <div class="cal-filter-all-line">
+                <label class="cal-filter-option cal-filter-all-option">
+                  <input type="checkbox" id="djResidencyAllCheck" onchange="toggleDjResidencyAll(this.checked)">
+                  <span>All residency types</span>
+                </label>
+              </div>
+              <div class="cal-filter-group">
+                <div class="cal-filter-options" style="grid-template-columns:1fr;">
+                  <label class="cal-filter-option"><input type="checkbox" class="dj-residency-check" data-key="local" onchange="toggleDjResidency('local', this.checked)"><span>Local resident</span></label>
+                  <label class="cal-filter-option"><input type="checkbox" class="dj-residency-check" data-key="visitor" onchange="toggleDjResidency('visitor', this.checked)"><span>Regular visitor</span></label>
+                  <label class="cal-filter-option"><input type="checkbox" class="dj-residency-check" data-key="guest" onchange="toggleDjResidency('guest', this.checked)"><span>Guest booking</span></label>
+                </div>
+              </div>
+            </div>
           </div>
-          <div class="controls-row">
-            <span class="ctrl-label">Upcoming only</span>
-            <div class="chip" id="dj-upcoming-chip" onclick="toggleDjUpcoming(this)">Has upcoming shows</div>
-            <div class="sort-btn active" id="dj-sort" onclick="toggleSort('dj',this)">A–Z &#8597;</div>
+          <div class="calendar-filter-wrap page-filter-wrap" id="djUpcomingWrap">
+            <button class="sort-btn calendar-filter-toggle" id="djUpcomingToggle" onclick="togglePageFilterMenu('djUpcomingWrap','djUpcomingToggle')">Upcoming</button>
+            <div class="calendar-filter-menu calendar-filter-menu-narrow" id="djUpcomingMenu">
+              <div class="cal-filter-all-line">
+                <label class="cal-filter-option cal-filter-all-option">
+                  <input type="checkbox" id="djUpcomingAllCheck" onchange="setDjUpcomingOnly(!this.checked)">
+                  <span>All DJs</span>
+                </label>
+              </div>
+              <div class="cal-filter-group">
+                <div class="cal-filter-options" style="grid-template-columns:1fr;">
+                  <label class="cal-filter-option"><input type="checkbox" id="djUpcomingOnlyCheck" onchange="setDjUpcomingOnly(this.checked)"><span>Has upcoming events</span></label>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="calendar-filter-wrap page-filter-wrap" id="djSortWrap">
+            <button class="sort-btn calendar-filter-toggle" id="djSortToggle" onclick="togglePageFilterMenu('djSortWrap','djSortToggle')">Sort</button>
+            <div class="calendar-filter-menu calendar-filter-menu-narrow" id="djSortMenu">
+              <div class="cal-filter-group">
+                <div class="cal-filter-options" style="grid-template-columns:1fr;">
+                  <label class="cal-filter-option"><input type="radio" name="djSort" value="az" checked onchange="setSortDirection('dj', true)"><span>A-Z</span></label>
+                  <label class="cal-filter-option"><input type="radio" name="djSort" value="za" onchange="setSortDirection('dj', false)"><span>Z-A</span></label>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
         <div class="results-bar"><span class="results-count" id="djCount"></span></div>
@@ -137,17 +227,27 @@
     <!-- BARTENDERS PAGE -->
     <div class="page" id="page-bartenders">
       <div id="barListView">
-        <div class="page-hero">
+        <div class="page-hero calendar-hero-slim has-left-icon has-glass-icon">
+          <img src="FL_glass.webp" alt="Fruit Loop cocktail icon" class="hero-left-icon hero-glass" onerror="this.onerror=null;this.src='FL_whole_inverted.png';">
           <div class="hero-eyebrow">Behind the stick</div>
           <div class="hero-title">Bartenders</div>
           <div class="hero-sub">The faces you love to see at the end of the bar</div>
         </div>
-        <div class="controls">
-          <div class="controls-row">
-            <span class="ctrl-label">Sort</span>
-            <div class="sort-btn active" id="bar-sort" onclick="toggleSort('bar',this)">A–Z &#8597;</div>
+        <div class="filters-bar page-filters" id="barFiltersBar">
+          <span class="filter-label">Filter:</span>
+          <div class="calendar-filter-wrap page-filter-wrap" id="barSortWrap">
+            <button class="sort-btn calendar-filter-toggle" id="barSortToggle" onclick="togglePageFilterMenu('barSortWrap','barSortToggle')">Sort</button>
+            <div class="calendar-filter-menu calendar-filter-menu-narrow" id="barSortMenu">
+              <div class="cal-filter-group">
+                <div class="cal-filter-options" style="grid-template-columns:1fr;">
+                  <label class="cal-filter-option"><input type="radio" name="barSort" value="az" checked onchange="setSortDirection('bar', true)"><span>A-Z</span></label>
+                  <label class="cal-filter-option"><input type="radio" name="barSort" value="za" onchange="setSortDirection('bar', false)"><span>Z-A</span></label>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
+        <div class="results-bar"><span class="results-count" id="barCount"></span></div>
         <div class="profile-grid" id="barGrid">
           <div class="loading-state">Loading bartenders...</div>
         </div>
@@ -161,33 +261,50 @@
     <!-- VENUES PAGE -->
     <div class="page" id="page-venues">
       <div id="venueListView">
-        <div class="page-hero">
+        <div class="page-hero calendar-hero-slim has-left-icon has-venue-loop">
+          <img src="Loop.webp" alt="Fruit Loop neighborhood map icon" class="hero-loop-icon hero-loop" onerror="this.onerror=null;this.src='FL_logo_black.png';">
           <div class="hero-eyebrow">Providence &amp; surrounding area</div>
           <div class="hero-title">Venues</div>
           <div class="hero-sub">Hover the <span class="info-i">i</span> on any filter to learn what it means &nbsp;·&nbsp; Select multiple types to combine</div>
         </div>
-        <div class="controls">
-          <div class="controls-row">
-            <span class="ctrl-label">Venue type</span>
+        <div class="filters-bar page-filters" id="venueFiltersBar">
+          <span class="filter-label">Filter:</span>
+          <div class="calendar-filter-wrap page-filter-wrap" id="venueTypeWrap">
+            <button class="sort-btn calendar-filter-toggle" id="venueTypeToggle" onclick="togglePageFilterMenu('venueTypeWrap','venueTypeToggle')">Venue type</button>
+            <div class="calendar-filter-menu" id="venueTypeMenu"></div>
           </div>
-          <div class="controls-row">
-            <span class="ctrl-label">Neighborhood</span>
-            <div class="chip on" id="vhood-all" onclick="setVenueHood('all',this)">All areas</div>
-            <div class="chip" id="vhood-downtown" onclick="setVenueHood('downtown',this)">Downtown PVD</div>
-            <div class="chip" id="vhood-eastside" onclick="setVenueHood('eastside',this)">East Side</div>
-            <div class="chip" id="vhood-westend" onclick="setVenueHood('westend',this)">West End</div>
-            <div class="chip" id="vhood-eastprov" onclick="setVenueHood('eastprov',this)">East Providence</div>
-            <div class="chip" id="vhood-greater" onclick="setVenueHood('greater',this)">Greater RI</div>
+          <div class="calendar-filter-wrap page-filter-wrap" id="venueNeighborhoodWrap">
+            <button class="sort-btn calendar-filter-toggle" id="venueNeighborhoodToggle" onclick="togglePageFilterMenu('venueNeighborhoodWrap','venueNeighborhoodToggle')">Neighborhood</button>
+            <div class="calendar-filter-menu calendar-filter-menu-narrow" id="venueNeighborhoodMenu"></div>
           </div>
-          <div class="controls-row">
-            <span class="ctrl-label">Sort</span>
-            <div class="sort-btn active" id="venue-sort" onclick="toggleSort('venue',this)">A–Z &#8597;</div>
+          <div class="calendar-filter-wrap page-filter-wrap" id="venueSortWrap">
+            <button class="sort-btn calendar-filter-toggle" id="venueSortToggle" onclick="togglePageFilterMenu('venueSortWrap','venueSortToggle')">Sort</button>
+            <div class="calendar-filter-menu calendar-filter-menu-narrow" id="venueSortMenu">
+              <div class="cal-filter-group">
+                <div class="cal-filter-options" style="grid-template-columns:1fr;">
+                  <label class="cal-filter-option"><input type="radio" name="venueSort" value="az" checked onchange="setSortDirection('venue', true)"><span>A-Z</span></label>
+                  <label class="cal-filter-option"><input type="radio" name="venueSort" value="za" onchange="setSortDirection('venue', false)"><span>Z-A</span></label>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
-        <div class="active-filters" id="venueActiveFilters"></div>
         <div class="results-bar"><span class="results-count" id="venueCount"></span></div>
-        <div class="venue-grid" id="venueGrid">
-          <div class="loading-state">Loading venues...</div>
+        <div class="venue-shell" id="venueShell">
+          <aside class="venue-map-panel">
+            <div class="venue-map-header">
+              <div class="venue-map-kicker">Live map</div>
+              <div class="venue-map-title">Filtered venues</div>
+              <div class="venue-map-legend" id="venueMapLegend"></div>
+            </div>
+            <div class="venue-map-canvas" id="venueMap" aria-label="Map of filtered venues"></div>
+            <div class="venue-map-status" id="venueMapStatus">Loading map...</div>
+          </aside>
+          <div class="venue-list-panel">
+            <div class="venue-grid" id="venueGrid">
+              <div class="loading-state">Loading venues...</div>
+            </div>
+          </div>
         </div>
       </div>
       <div class="detail-view" id="venueDetailView" style="display:none">
@@ -198,10 +315,10 @@
 
     <!-- ABOUT PAGE -->
     <div class="page" id="page-about">
-      <div class="page-hero">
+      <div class="page-hero calendar-hero-slim has-left-icon has-glass-icon">
+        <img src="FL_glass.webp" alt="Fruit Loop cocktail icon" class="hero-left-icon hero-glass" onerror="this.onerror=null;this.src='FL_whole_inverted.png';">
         <div class="hero-eyebrow">Providence, RI</div>
         <div class="hero-title">About<em>Fruit Loop</em></div>
-        <img src="FL_logo_black.png" alt="The Fruit Loop Providence logo" class="about-logo">
       </div>
       <div class="about-body">
         <div class="about-section">
@@ -232,7 +349,8 @@
 
     <!-- SUBMIT EVENT PAGE -->
     <div class="page" id="page-submit">
-      <div class="page-hero">
+      <div class="page-hero calendar-hero-slim has-left-icon has-glass-icon">
+        <img src="FL_glass.webp" alt="Fruit Loop cocktail icon" class="hero-left-icon hero-glass" onerror="this.onerror=null;this.src='FL_whole_inverted.png';">
         <div class="hero-eyebrow">Get listed</div>
         <div class="hero-title">Submit<em>an Event</em></div>
         <div class="hero-sub">We review all submissions before they go live — usually within 48 hours</div>
@@ -338,6 +456,7 @@
     </div>
   </footer>
 
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
   <script src="js/data.js"></script>
   <script src="js/app.js"></script>
 </body>

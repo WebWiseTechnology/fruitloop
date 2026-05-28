@@ -38,6 +38,7 @@
    ============================================================ */
 
 const SHEET_ID = '1KsVVPNNXVu-AWpIKy3ZntCBF_Af4MqW_kGIF-LDcJWQ';
+// const SHEET_ID = '1i7saoDpEVc73eCNGjC4ZigvPPjMc7k_AgwirLGyN2_4'; // TEST (copy of actual with dummy data for development)
 
 const SHEET_TABS = {
   events:     'Events',
@@ -309,17 +310,100 @@ function mergeEvents(rows) {
 }
 
 function rowToPerformer(row) {
-  return { id: row.ID||(row.Name||'').toLowerCase().replace(/\s+/g,'-'), name:row.Name||'', role:row.Role||'Performer', initials:row.Initials||(row.Name||'').split(' ').map(w=>w[0]).join('').slice(0,2), avatarColor:row.AvatarColor||'pink', residency:row.Residency||'local', bio:row.Bio||'', photoUrl:normalizePhotoUrl(row.PhotoURL||''), tags:row.Tags?row.Tags.split(',').map(s=>s.trim().toLowerCase()).filter(Boolean):[], socials:{instagram:row.InstagramURL||'',tiktok:row.TikTokURL||'',facebook:row.FacebookURL||'',youtube:row.YouTubeURL||'',website:row.WebsiteURL||'',linktree:row.LinktreeURL||''}, events:row.Events?row.Events.split(',').map(s=>s.trim()).filter(Boolean):[] };
+  const id = row.ID || (row.Name || '').toLowerCase().replace(/\s+/g, '-');
+  return {
+    id,
+    personId: (row.PersonID || id).toLowerCase().trim(),
+    name: row.Name || '',
+    role: row.Role || 'Performer',
+    initials: row.Initials || (row.Name || '').split(' ').map(w => w[0]).join('').slice(0,2),
+    avatarColor: row.AvatarColor || 'pink',
+    residency: row.Residency || 'local',
+    bio: row.Bio || '',
+    photoUrl: normalizePhotoUrl(row.PhotoURL || ''),
+    tags: row.Tags ? row.Tags.split(',').map(s => s.trim().toLowerCase()).filter(Boolean) : [],
+    socials: {
+      instagram: row.InstagramURL || '',
+      tiktok: row.TikTokURL || '',
+      facebook: row.FacebookURL || '',
+      youtube: row.YouTubeURL || '',
+      website: row.WebsiteURL || '',
+      linktree: row.LinktreeURL || ''
+    },
+    events: row.Events ? row.Events.split(',').map(s => s.trim()).filter(Boolean) : []
+  };
 }
 function rowToDJ(row) {
-  return { id: row.ID||(row.Name||'').toLowerCase().replace(/\s+/g,'-'), name:row.Name||'', genre:row.Genre||'', initials:row.Initials||(row.Name||'').split(' ').map(w=>w[0]).join('').slice(0,2), avatarColor:row.AvatarColor||'blue', residency:row.Residency||'local', bio:row.Bio||'', photoUrl:normalizePhotoUrl(row.PhotoURL||''), socials:{instagram:row.InstagramURL||'',tiktok:row.TikTokURL||'',facebook:row.FacebookURL||'',youtube:row.YouTubeURL||'',website:row.WebsiteURL||'',linktree:row.LinktreeURL||''}, events:row.Events?row.Events.split(',').map(s=>s.trim()).filter(Boolean):[] };
+  const id = row.ID || (row.Name || '').toLowerCase().replace(/\s+/g, '-');
+  return {
+    id,
+    personId: (row.PersonID || id).toLowerCase().trim(),
+    name: row.Name || '',
+    genre: row.Genre || '',
+    initials: row.Initials || (row.Name || '').split(' ').map(w => w[0]).join('').slice(0,2),
+    avatarColor: row.AvatarColor || 'blue',
+    residency: row.Residency || 'local',
+    bio: row.Bio || '',
+    photoUrl: normalizePhotoUrl(row.PhotoURL || ''),
+    socials: {
+      instagram: row.InstagramURL || '',
+      tiktok: row.TikTokURL || '',
+      facebook: row.FacebookURL || '',
+      youtube: row.YouTubeURL || '',
+      website: row.WebsiteURL || '',
+      linktree: row.LinktreeURL || ''
+    },
+    events: row.Events ? row.Events.split(',').map(s => s.trim()).filter(Boolean) : []
+  };
 }
 function rowToBartender(row) {
-  return { id: row.ID||(row.Name||'').toLowerCase().replace(/\s+/g,'-'), name:row.Name||'', initials:row.Initials||(row.Name||'').split(' ').map(w=>w[0]).join('').slice(0,2), avatarColor:row.AvatarColor||'teal', residency:row.Residency||'local', bio:row.Bio||'', photoUrl:normalizePhotoUrl(row.PhotoURL||''), schedule:row.Schedule||'', socials:{instagram:row.InstagramURL||'',tiktok:row.TikTokURL||'',facebook:row.FacebookURL||'',youtube:row.YouTubeURL||'',website:row.WebsiteURL||'',linktree:row.LinktreeURL||''}, venues:row.Venues?row.Venues.split(',').map(s=>s.trim()).filter(Boolean):[], events:row.Events?row.Events.split(',').map(s=>s.trim()).filter(Boolean):[] };
+  const id = row.ID || (row.Name || '').toLowerCase().replace(/\s+/g, '-');
+  return {
+    id,
+    personId: (row.PersonID || id).toLowerCase().trim(),
+    name: row.Name || '',
+    initials: row.Initials || (row.Name || '').split(' ').map(w => w[0]).join('').slice(0,2),
+    avatarColor: row.AvatarColor || 'teal',
+    residency: row.Residency || 'local',
+    bio: row.Bio || '',
+    photoUrl: normalizePhotoUrl(row.PhotoURL || ''),
+    schedule: row.Schedule || '',
+    socials: {
+      instagram: row.InstagramURL || '',
+      tiktok: row.TikTokURL || '',
+      facebook: row.FacebookURL || '',
+      youtube: row.YouTubeURL || '',
+      website: row.WebsiteURL || '',
+      linktree: row.LinktreeURL || ''
+    },
+    venues: row.Venues ? row.Venues.split(',').map(s => s.trim()).filter(Boolean) : [],
+    events: row.Events ? row.Events.split(',').map(s => s.trim()).filter(Boolean) : []
+  };
 }
 function rowToVenue(row) {
   const types = row.Types?row.Types.split(',').map(s=>s.trim().toLowerCase()).filter(Boolean):[];
-  return { name:row.Name||'', types, hood:row.Neighborhood||'', hoodLabel:row.HoodLabel||row.Neighborhood||'', bannerStyle:row.BannerStyle||`vb-${types[0]||'safe'}`, address:row.Address||'', website:row.Website||'', photoUrl:normalizePhotoUrl(row.PhotoURL||''), socials:{instagram:row.InstagramURL||'',tiktok:row.TikTokURL||'',facebook:row.FacebookURL||'',youtube:row.YouTubeURL||'',website:row.WebsiteURL||'',linktree:row.LinktreeURL||''} };
+  const latitude = parseFloat(row.Latitude || row.Lat || row.latitude || row.lat || '');
+  const longitude = parseFloat(row.Longitude || row.Lng || row.Long || row.longitude || row.lng || row.long || '');
+  return {
+    name: row.Name || '',
+    types,
+    hood: row.Neighborhood || '',
+    hoodLabel: row.HoodLabel || row.Neighborhood || '',
+    bannerStyle: row.BannerStyle || `vb-${types[0] || 'safe'}`,
+    address: row.Address || '',
+    website: row.Website || '',
+    latitude: Number.isFinite(latitude) ? latitude : null,
+    longitude: Number.isFinite(longitude) ? longitude : null,
+    photoUrl: normalizePhotoUrl(row.PhotoURL || ''),
+    socials: {
+      instagram: row.InstagramURL || '',
+      tiktok: row.TikTokURL || '',
+      facebook: row.FacebookURL || '',
+      youtube: row.YouTubeURL || '',
+      website: row.WebsiteURL || '',
+      linktree: row.LinktreeURL || ''
+    }
+  };
 }
 
 /* ════════════════════════════════════════════
@@ -355,59 +439,6 @@ function parseCSV(text) {
   });
 }
 
-/* ════════════════════════════════════════════
-   SAMPLE DATA
-   ════════════════════════════════════════════ */
-
-const SAMPLE_ROWS = [
-  { Date:'2026-04-04', Time:'9:00',  AMPM:'PM', EventName:'Glitter Bomb',           Venue:'Fête',         Location:'Providence',      Vibe:'Dance night', Type:'DJ set',    Age:'21+',      Cover:'$10 cover',   TicketURL:'#', Performers:'Lux Vandal',                                                       DJs:'DJ Velveeta',              FlierURL:'https://via.placeholder.com/600x800/150820/f7c6ff?text=Glitter+Bomb',              Bartenders:'Marcy Malone', Tags:'dance,21' },
-  { Date:'2026-04-04', Time:'10:00', AMPM:'PM', EventName:'Drag Disaster',          Venue:'The Stable',   Location:'Providence',      Vibe:'Drag show',   Type:'Drag show', Age:'18+',      Cover:'$15 cover',   TicketURL:'#', Performers:'Rhonda Rotten,Miss Behave,Crystal Void',                          DJs:'',                         FlierURL:'https://via.placeholder.com/600x800/0d0b14/ffdb6e?text=Drag+Disaster',                         Bartenders:'Marcy Malone', Tags:'drag' },
-  { Date:'2026-04-11', Time:'10:00', AMPM:'PM', EventName:'Velvet Underground',     Venue:'The Stable',   Location:'Providence',      Vibe:'Dance night', Type:'DJ set',    Age:'21+',      Cover:'$8 cover',    TicketURL:'#', Performers:'Crystal Void',                                                    DJs:'Sable Chrome',             Bartenders:'Joe Diamond',  Tags:'dance,21' },
-  { Date:'2026-04-19', Time:'8:00',  AMPM:'PM', EventName:'Spring Fling Drag Ball', Venue:'AS220',        Location:'Providence',      Vibe:'Drag show',   Type:'Drag show', Age:'All ages', Cover:'$20 advance', TicketURL:'#', Performers:'Rhonda Rotten,Miss Behave,Bunny St. Claire,Lux Vandal,Crystal Void', DJs:'DJ Velveeta', Bartenders:'', Tags:'drag,allages' },
-  // Override: Apr 5 brunch has special guest — wins over the recurring Saturday row
-  { Date:'2026-04-05', Time:'11:00', AMPM:'AM', EventName:'Queer Brunch',           Venue:'Persimmon',    Location:'East Providence', Vibe:'Brunch',      Type:'Brunch',    Age:'All ages', Cover:'Free',        TicketURL:'',  Performers:'Bunny St. Claire,Rhonda Rotten',                                  DJs:'',                         Bartenders:'Joe Diamond',  Tags:'brunch,allages' },
-  // Recurring: every Saturday brunch
-  { RecurType:'weekly',       RecurDay:'Saturday',  RecurStart:'2026-04-01', Time:'11:00', AMPM:'AM', EventName:'Queer Brunch',   Venue:'Persimmon',   Location:'East Providence', Vibe:'Brunch',      Type:'Brunch',    Age:'All ages', Cover:'Free',       TicketURL:'', Performers:'Bunny St. Claire', DJs:'',            Bartenders:'Joe Diamond', Tags:'brunch,allages' },
-  // Recurring: 2nd and 4th Wednesday bingo
-  { RecurType:'twicemonthly', RecurDay:'Wednesday', RecurWeek:'2,4', RecurStart:'2026-04-01', Time:'7:00', AMPM:'PM', EventName:'Queer Bingo', Venue:'The Alley Cat', Location:'Providence', Vibe:'Bingo', Type:'Game night', Age:'All ages', Cover:'Free', TicketURL:'', Performers:'Rhonda Rotten', DJs:'', Bartenders:'Reyna Cruz', Tags:'bingo,allages' },
-  // Recurring: last Friday dance night
-  { RecurType:'monthly',      RecurDay:'Friday',    RecurWeek:'last', RecurStart:'2026-04-01', Time:'10:00', AMPM:'PM', EventName:'Last Friday', Venue:'Fête', Location:'Providence', Vibe:'Dance night', Type:'DJ set', Age:'21+', Cover:'$10 cover', TicketURL:'#', Performers:'', DJs:'DJ Velveeta', Bartenders:'Marcy Malone', Tags:'dance,21' },
-  // Recurring: every other Saturday dance night
-  { RecurType:'biweekly',     RecurDay:'Saturday',  RecurWeek:'2026-04-05', RecurStart:'2026-04-05', Time:'9:00', AMPM:'PM', EventName:'Neon Sabbath', Venue:'Fête', Location:'Providence', Vibe:'Dance night', Type:'DJ set', Age:'21+', Cover:'$12 cover', TicketURL:'#', Performers:'', DJs:'DJ Velveeta,Sable Chrome', Bartenders:'Marcy Malone', Tags:'dance,21' },
-];
-
-const SAMPLE_PERFORMERS = [
-  { id:'rhonda',     name:'Rhonda Rotten',   role:'Drag performer',        initials:'RR', avatarColor:'pink',   bio:"Providence's reigning queen of chaos. Known for jaw-dropping makeup, death-drop finishes, and making the whole room cry with laughter.", events:[] },
-  { id:'missbehave', name:'Miss Behave',      role:'Drag performer',        initials:'MB', avatarColor:'purple', bio:'Campy, chaotic, and completely committed to the bit. Miss Behave has been lighting up Providence stages since 2019.', events:[] },
-  { id:'bunny',      name:'Bunny St. Claire', role:'Drag performer & host', initials:'BS', avatarColor:'gold',   bio:'The sweetest hostess in the city — equal parts warmth and shade. Bunny runs a tight show and makes every room feel like home.', events:[] },
-  { id:'lux',        name:'Lux Vandal',       role:'Drag performer',        initials:'LV', avatarColor:'pink',   bio:'New to the Providence scene but already making waves. Lux brings avant-garde looks and unexpected musical choices.', events:[] },
-  { id:'crystal',    name:'Crystal Void',     role:'Drag performer',        initials:'CV', avatarColor:'purple', bio:"Dark, ethereal, occasionally terrifying. Crystal's aesthetic is somewhere between goth nightmare and fever dream.", events:[] },
-];
-
-const SAMPLE_DJS = [
-  { id:'velveeta', name:'DJ Velveeta',  genre:'Hi-NRG · Hyperpop · Pop',        initials:'VV', avatarColor:'blue',   residency:'local',   bio:'The unofficial soundtrack to Providence queer nightlife.', events:[] },
-  { id:'sable',    name:'Sable Chrome', genre:'Darkwave · Industrial · EBM',     initials:'SC', avatarColor:'purple', residency:'local',   bio:"Darker, slower, heavier. Sable Chrome's sets make you feel like you're in a movie.", events:[] },
-  { id:'bruja',    name:'DJ Bruja',     genre:'Reggaeton · Latin club · Cumbia', initials:'BR', avatarColor:'pink',   residency:'visitor', bio:'A frequent visitor from Boston bringing Latin club heat to Providence queers.', events:[] },
-  { id:'mx',       name:'MX. STATIC',   genre:'Noise · Experimental · Club',     initials:'MX', avatarColor:'teal',   residency:'guest',   bio:'A one-night-only guest booking from NYC — experimental, noisy, unforgettable.', events:[] },
-];
-
-const SAMPLE_BARTENDERS = [
-  { id:'marcy', name:'Marcy Malone', initials:'MM', avatarColor:'teal',   bio:'A Providence fixture for over a decade. Marcy is as known for her pour as for her commentary.', venues:['Fête','The Stable'],    events:[] },
-  { id:'joe',   name:'Joe Diamond',  initials:'JD', avatarColor:'gold',   bio:'Specializes in classic cocktails and making regulars feel like royalty.',                        venues:['Persimmon','The Stable'],events:[] },
-  { id:'reyna', name:'Reyna Cruz',   initials:'RC', avatarColor:'purple', bio:'Known for experimental cocktail menus and an encyclopedic knowledge of queer nightlife history.',venues:['The Alley Cat'],         events:[] },
-];
-
-const SAMPLE_VENUES = [
-  { name:'The Alley Cat', types:['queer','restaurant'], hood:'downtown', hoodLabel:'Downtown PVD',    bannerStyle:'vb-queer' },
-  { name:'AS220',         types:['arts','safe'],         hood:'downtown', hoodLabel:'Downtown PVD',    bannerStyle:'vb-arts' },
-  { name:'Fête',          types:['safe','restaurant'],   hood:'westend',  hoodLabel:'West End',        bannerStyle:'vb-safe' },
-  { name:'Oasis Bar',     types:['queer'],               hood:'downtown', hoodLabel:'Downtown PVD',    bannerStyle:'vb-queer' },
-  { name:'Persimmon',     types:['restaurant','safe'],   hood:'eastprov', hoodLabel:'East Providence', bannerStyle:'vb-restaurant' },
-  { name:'Riffraff',      types:['arts','safe'],         hood:'westend',  hoodLabel:'West End',        bannerStyle:'vb-arts' },
-  { name:'The Stable',    types:['safe'],                hood:'eastside', hoodLabel:'East Side',       bannerStyle:'vb-safe' },
-  { name:'Yacht Club',    types:['safe','restaurant'],   hood:'greater',  hoodLabel:'Greater RI',      bannerStyle:'vb-safe' },
-];
-
 function _linkPeople(events, performers, djs, bartenders) {
   const find = (list, name) => list.find(p => p.name.toLowerCase() === name.toLowerCase());
   events.forEach(e => {
@@ -428,11 +459,11 @@ async function loadData() {
   ]);
 
   const usingSheet = evRows !== null;
-  const events     = mergeEvents(usingSheet ? evRows : SAMPLE_ROWS);
-  const performers = perfRows  ? perfRows.map(rowToPerformer)  : JSON.parse(JSON.stringify(SAMPLE_PERFORMERS));
-  const djs        = djRows    ? djRows.map(rowToDJ)            : JSON.parse(JSON.stringify(SAMPLE_DJS));
-  const bartenders = barRows   ? barRows.map(rowToBartender)    : JSON.parse(JSON.stringify(SAMPLE_BARTENDERS));
-  const venues     = venueRows ? venueRows.map(rowToVenue)      : SAMPLE_VENUES;
+  const events     = mergeEvents(Array.isArray(evRows) ? evRows : []);
+  const performers = Array.isArray(perfRows) ? perfRows.map(rowToPerformer) : [];
+  const djs        = Array.isArray(djRows) ? djRows.map(rowToDJ) : [];
+  const bartenders = Array.isArray(barRows) ? barRows.map(rowToBartender) : [];
+  const venues     = Array.isArray(venueRows) ? venueRows.map(rowToVenue) : [];
 
   _linkPeople(events, performers, djs, bartenders);
 
