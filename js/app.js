@@ -3,7 +3,7 @@
    ============================================================ */
 
 /* ── App state ── */
-let DATA = { events: [], performers: [], djs: [], bartenders: [], venues: [] };
+let DATA = { events: [], performers: [], djs: [], bartenders: [], organizers: [], venues: [] };
 
 const state = {
   calFilters:   new Set(),
@@ -17,6 +17,12 @@ const state = {
   djUpcoming:   false,
   djSortAZ:     true,
   barSortAZ:    true,
+  orgSortAZ:    true,
+  perfSearch:   '',
+  djSearch:     '',
+  barSearch:    '',
+  orgSearch:    '',
+  venueSearch:  '',
   venueTypes:   new Set(),
   venueHood:    'all',
   venueSortAZ:  true,
@@ -35,6 +41,8 @@ let venueMapInitialFocusApplied = false;
 let venueMapUserMoved = false;
 let venueMapProgrammaticMove = false;
 let venueMapRenderToken = 0;
+let venueDetailMap = null;
+let venueDetailMapMarker = null;
 let lastRenderedVenues = [];
 const venueGeoCache = {};
 const VENUE_MAP_CACHE_KEY = 'fruitloop_venue_geo_cache_v1';
@@ -45,6 +53,22 @@ const VENUE_MAP_LOOP_RADIUS_M = 420;
 const CALENDAR_TOGGLE_ICON_SHOW = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0"/><circle cx="12" cy="12" r="3"/></svg>';
 const CALENDAR_TOGGLE_ICON_HIDE = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10.733 5.076a10.744 10.744 0 0 1 11.205 6.575 1 1 0 0 1 0 .696 10.747 10.747 0 0 1-1.444 2.49"/><path d="M14.084 14.158a3 3 0 0 1-4.242-4.242"/><path d="M17.479 17.499a10.75 10.75 0 0 1-15.417-5.151 1 1 0 0 1 0-.696 10.75 10.75 0 0 1 4.446-5.143"/><path d="m2 2 20 20"/></svg>';
 const CALENDAR_FILTER_CHEVRON_ICON = '<svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M37 18L25 30L13 18" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+
+const DJ_BADGE_ICON = '<svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" class="badge-icon badge-icon-left"><rect x="3" y="6" width="26" height="20" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><circle cx="13" cy="16" r="7" stroke="currentColor" stroke-width="2"/><circle cx="13" cy="16" r="2" stroke="currentColor" stroke-width="2"/><circle cx="24" cy="10" r="1" stroke="currentColor" stroke-width="2"/><polyline points="22,23 24,21 24,10" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>'; 
+const BARTENDER_BADGE_ICON = '<svg viewBox="-2 0 160 160" fill="currentColor" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" class="badge-icon badge-icon-left"><g clip-path="url(#clip0)"><path d="M155.491 33.0349C155.313 32.587 155.169 32.1266 155.062 31.6569C153.921 25.7382 150.752 20.4023 146.101 16.5681C137.236 9.1397 124.47 8.33851 112.784 14.4805C106.243 17.9276 101.117 23.5587 98.299 30.3942L58.7093 31.2473L53.383 23.8961C48.6416 17.3531 44.0429 11.0063 39.4236 4.67458C38.5741 3.39473 37.3688 2.39099 35.9567 1.78643C34.5446 1.18187 32.9869 1.00308 31.4745 1.27175C30.3355 1.39325 29.1882 1.41496 28.0454 1.33712C27.6548 1.32334 27.2648 1.30908 26.8769 1.30187C23.9207 1.24673 20.9635 1.18878 18.0061 1.12753C14.1118 1.04877 10.2177 0.973031 6.3234 0.901271C6.19213 0.901271 6.05427 0.893718 5.91447 0.887811C5.12681 0.766525 4.32104 0.902896 3.61729 1.27687C2.01779 2.4189 1.23544 3.39346 1.15602 4.34384C1.0556 5.55413 2.26079 7.13958 3.36475 7.69156C4.75666 8.26657 6.24738 8.5656 7.75337 8.57223L7.85851 8.57925C14.8971 9.06823 21.9143 9.5081 28.7133 9.88615C29.3834 9.89679 30.0383 10.0864 30.6105 10.4355C31.1827 10.7845 31.6514 11.2807 31.9674 11.8718C33.9745 14.9428 36.0908 18.01 38.1372 20.9773C39.2989 22.6621 40.4613 24.3474 41.6092 26.0408C42.5019 27.3535 43.3632 28.7045 44.3609 30.266C44.6726 30.7523 44.9976 31.261 45.3415 31.7972C44.9477 31.7972 44.5788 31.7922 44.2218 31.7895C42.8435 31.7803 41.6546 31.7713 40.485 31.8107L37.3347 31.9126C32.846 32.0563 28.2042 32.2054 23.642 32.483C20.9563 32.6451 18.8891 34.0098 17.9702 36.2243C16.9758 38.6225 18.4519 40.4636 19.6373 41.9416L19.92 42.2967C20.1307 42.5592 20.3577 42.8002 20.5763 43.03L20.6366 43.0953C22.0367 44.5634 23.4388 46.0293 24.8438 47.4929C27.8124 50.5856 30.8821 53.7839 33.8396 56.981C39.005 62.5638 44.1608 68.1568 49.3064 73.7586C55.4347 80.4198 61.7718 87.3067 68.0326 94.0565C68.5459 94.5724 68.9233 95.2071 69.1313 95.9041C69.3394 96.6018 69.3709 97.3395 69.2239 98.0523C68.6752 102.397 68.3483 105.917 68.1941 109.128C67.8482 116.351 67.5436 123.695 67.2489 130.798C67.0612 135.313 66.8696 139.828 66.6753 144.343C66.6346 145.27 66.5127 146.197 66.3841 147.178C66.3473 147.454 66.3112 147.734 66.2757 148.016H64.0863C61.8094 148.011 59.6521 148.007 57.4941 148.03C56.4336 148 55.3738 148.095 54.3354 148.313C51.7442 148.958 51.1395 150.624 51.089 151.907C51.0135 153.815 52.0079 155.161 53.9573 155.8C54.7487 156.068 55.5678 156.246 56.3993 156.33C66.2614 157.212 74.5422 157.94 82.898 158.627C83.0214 158.637 83.1468 158.641 83.2715 158.641C84.126 158.607 84.9714 158.453 85.7826 158.182C86.8669 157.923 87.8291 157.299 88.5077 156.414C89.187 155.53 89.5415 154.44 89.5126 153.325C89.5552 152.196 89.1765 151.09 88.4487 150.226C87.7214 149.361 86.6976 148.798 85.5772 148.648C84.1759 148.439 82.7628 148.323 81.3458 148.3L80.8253 148.281C79.846 148.24 78.8773 148.25 77.8488 148.26L77.1885 148.265C77.2824 147.438 77.3854 146.639 77.4813 145.862C77.7438 143.766 77.9958 141.787 78.0496 139.803C78.3929 127.19 78.7716 112.303 78.9469 97.4996C78.9029 96.4941 79.0834 95.4919 79.4765 94.5652C79.869 93.6391 80.4637 92.8121 81.2165 92.1446C87.1891 86.4016 93.213 80.4132 99.1128 74.3467C102.464 70.9002 105.788 67.2897 109.001 63.7994C110.309 62.3765 111.625 60.9508 112.949 59.5217C118.768 64.7941 125.807 66.2494 134.45 63.9725C146.167 60.8877 153.129 53.8183 155.144 42.9697C155.219 42.669 155.332 42.3787 155.48 42.1064C155.561 41.9377 155.643 41.7693 155.714 41.5987C155.748 41.5154 155.765 41.4259 155.765 41.3359V33.9483C155.765 33.8767 155.754 33.8054 155.732 33.7374C155.661 33.5037 155.576 33.2706 155.491 33.0349ZM119.002 38.9189C113.976 45.7677 81.9601 78.5262 73.6633 85.1946L30.4925 40.0297L119.002 38.9189ZM122.946 48.148C124.719 46.0477 126.493 43.9414 128.268 41.8288C128.477 41.5807 128.691 41.3346 128.905 41.0898C129.535 40.4012 130.114 39.6687 130.64 38.8977C131.093 38.2533 131.403 37.5189 131.548 36.7447C131.694 35.9706 131.672 35.1747 131.484 34.4098C131.287 33.7387 130.947 33.1185 130.486 32.5926C130.025 32.0668 129.455 31.6475 128.815 31.3645C126.814 30.4791 124.655 30.0014 122.466 29.9589C118.973 29.8277 115.519 29.852 111.859 29.8775C110.737 29.8854 109.602 29.892 108.453 29.8968C109.799 27.7142 111.552 25.8108 113.617 24.2903C116.18 22.2365 119.173 20.7875 122.374 20.0524C125.575 19.3172 128.901 19.3143 132.104 20.044C140.263 21.761 145.198 28.8968 144.677 38.2247C144.579 40.4112 144.03 42.5539 143.066 44.5189C142.102 46.4838 140.743 48.229 139.074 49.6453C137.369 51.0704 135.389 52.129 133.256 52.7545C131.124 53.38 128.885 53.5591 126.68 53.2807C124.573 53.0412 122.931 52.2476 120.97 50.4933L122.946 48.148Z"/></g><defs><clipPath id="clip0"><rect width="154.896" height="158.834" fill="white" transform="translate(0.917725 0.463379)"/></clipPath></defs></svg>';
+const PROMOTER_BADGE_ICON = '<svg width="800px" height="800px" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg" fill="currentColor" aria-hidden="true" class="badge-icon badge-icon-left"><path fill-rule="evenodd" clip-rule="evenodd" d="M9.111 4.663A2 2 0 1 1 6.89 1.337a2 2 0 0 1 2.222 3.326zm-.555-2.494A1 1 0 1 0 7.444 3.83a1 1 0 0 0 1.112-1.66zm2.61.03a1.494 1.494 0 0 1 1.895.188 1.513 1.513 0 0 1-.487 2.46 1.492 1.492 0 0 1-1.635-.326 1.512 1.512 0 0 1 .228-2.321zm.48 1.61a.499.499 0 1 0 .705-.708.509.509 0 0 0-.351-.15.499.499 0 0 0-.5.503.51.51 0 0 0 .146.356zM3.19 12.487H5v1.005H3.19a1.197 1.197 0 0 1-.842-.357 1.21 1.21 0 0 1-.348-.85v-1.81a.997.997 0 0 1-.71-.332A1.007 1.007 0 0 1 1 9.408V7.226c.003-.472.19-.923.52-1.258.329-.331.774-.52 1.24-.523H4.6a2.912 2.912 0 0 0-.55 1.006H2.76a.798.798 0 0 0-.54.232.777.777 0 0 0-.22.543v2.232h1v2.826a.202.202 0 0 0 .05.151.24.24 0 0 0 .14.05zm7.3-6.518a1.765 1.765 0 0 0-1.25-.523H6.76a1.765 1.765 0 0 0-1.24.523c-.33.335-.517.786-.52 1.258v3.178a1.06 1.06 0 0 0 .29.734 1 1 0 0 0 .71.332v2.323a1.202 1.202 0 0 0 .35.855c.18.168.407.277.65.312h2a1.15 1.15 0 0 0 1-1.167V11.47a.997.997 0 0 0 .71-.332 1.006 1.006 0 0 0 .29-.734V7.226a1.8 1.8 0 0 0-.51-1.258zM10 10.454H9v3.34a.202.202 0 0 1-.06.14.17.17 0 0 1-.14.06H7.19a.21.21 0 0 1-.2-.2v-3.34H6V7.226c0-.203.079-.398.22-.543a.798.798 0 0 1 .54-.232h2.48a.778.778 0 0 1 .705.48.748.748 0 0 1 .055.295v3.228zm2.81 3.037H11v-1.005h1.8a.24.24 0 0 0 .14-.05.2.2 0 0 0 .06-.152V9.458h1V7.226a.777.777 0 0 0-.22-.543.798.798 0 0 0-.54-.232h-1.29a2.91 2.91 0 0 0-.55-1.006h1.84a1.77 1.77 0 0 1 1.24.523c.33.335.517.786.52 1.258v2.182c0 .273-.103.535-.289.733-.186.199-.44.318-.711.333v1.81c0 .319-.125.624-.348.85a1.197 1.197 0 0 1-.842.357zM4 1.945a1.494 1.494 0 0 0-1.386.932A1.517 1.517 0 0 0 2.94 4.52 1.497 1.497 0 0 0 5.5 3.454c0-.4-.158-.784-.44-1.067A1.496 1.496 0 0 0 4 1.945zm0 2.012a.499.499 0 0 1-.5-.503.504.504 0 0 1 .5-.503.509.509 0 0 1 .5.503.504.504 0 0 1-.5.503z"/></svg>';
+
+function djBadgePill(name) {
+  return `<span class="edj" onclick="event.stopPropagation();goToDJ('${escHtml(name)}')">${DJ_BADGE_ICON}${escHtml(name)}</span>`;
+}
+
+function bartenderBadgePill(name) {
+  return `<span class="ebar" onclick="event.stopPropagation();goToBartender('${escHtml(name)}')">${BARTENDER_BADGE_ICON}${escHtml(name)}</span>`;
+}
+
+function promoterBadgePill(name) {
+  return `<span class="epromoter">${PROMOTER_BADGE_ICON}${escHtml(name)}</span>`;
+}
 
 try {
   const cached = JSON.parse(localStorage.getItem(VENUE_MAP_CACHE_KEY) || '{}');
@@ -60,16 +84,20 @@ document.addEventListener('DOMContentLoaded', async () => {
   setupSubmitForm();
 
   DATA = await loadData();
+  DATA.organizers = buildOrganizersFromEvents(DATA.events);
 
   buildFilterChips();
   buildVenueTypeChips();
   buildPerformerChips();
+  buildPeopleVenueMenu();
   setupPageFilterMenus();
   renderEvents();
   renderPerformers();
   renderDJs();
   renderBartenders();
+  renderOrganizers();
   renderVenues();
+  setupPageSearchInputs();
 
   const params = new URLSearchParams(window.location.search);
   const state = {
@@ -78,6 +106,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     performer: params.get('performer') || null,
     dj: params.get('dj') || null,
     bartender: params.get('bartender') || null,
+    organizer: params.get('organizer') || null,
     venue: params.get('venue') || null,
   };
 
@@ -91,6 +120,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     showDJDetail(state.dj, false);
   } else if (state.page === 'bartenders' && state.bartender) {
     showBartenderDetail(state.bartender, false);
+  } else if (state.page === 'organizers' && state.organizer) {
+    showOrganizerDetail(state.organizer, false);
   } else if (state.page === 'venues' && state.venue) {
     showVenueDetail(state.venue, false);
   }
@@ -110,6 +141,8 @@ document.addEventListener('DOMContentLoaded', async () => {
       showDJDetail(nextState.dj, false);
     } else if (page === 'bartenders' && nextState.bartender) {
       showBartenderDetail(nextState.bartender, false);
+    } else if (page === 'organizers' && nextState.organizer) {
+      showOrganizerDetail(nextState.organizer, false);
     } else if (page === 'venues' && nextState.venue) {
       showVenueDetail(nextState.venue, false);
     }
@@ -128,7 +161,7 @@ function updatePageHistory(name, replace = false, extras = {}) {
   if (!window.history || !window.history.pushState) return;
   const url = new URL(window.location.href);
   url.searchParams.set('page', name);
-  const keys = ['event', 'performer', 'dj', 'bartender', 'venue'];
+  const keys = ['event', 'performer', 'dj', 'bartender', 'organizer', 'venue'];
   keys.forEach(key => {
     if (extras[key]) url.searchParams.set(key, extras[key]);
     else url.searchParams.delete(key);
@@ -147,6 +180,7 @@ function hideAllDetailViews() {
     { detail: 'perfDetailView', main: 'perfListView' },
     { detail: 'djDetailView', main: 'djListView' },
     { detail: 'barDetailView', main: 'barListView' },
+    { detail: 'orgDetailView', main: 'orgListView' },
     { detail: 'venueDetailView', main: 'venueListView' },
   ];
   detailViews.forEach(view => {
@@ -181,6 +215,7 @@ function showPage(name, el, pushState = true) {
   }
   hideAllDetailViews();
   document.getElementById('siteNav')?.classList.remove('open');
+  document.querySelectorAll('.nav-dropdown.open').forEach(dropdown => dropdown.classList.remove('open'));
   if (name === 'venues') {
     requestAnimationFrame(() => {
       ensureVenueMap();
@@ -199,6 +234,26 @@ function setupMobileNav() {
   if (toggle && nav) {
     toggle.addEventListener('click', () => nav.classList.toggle('open'));
   }
+
+  document.querySelectorAll('.nav-dropdown-trigger').forEach(trigger => {
+    trigger.addEventListener('click', event => {
+      const dropdown = trigger.closest('.nav-dropdown');
+      if (!dropdown) return;
+      const isOpen = dropdown.classList.toggle('open');
+      if (isOpen) {
+        document.querySelectorAll('.nav-dropdown.open').forEach(other => {
+          if (other !== dropdown) other.classList.remove('open');
+        });
+      }
+      event.stopPropagation();
+    });
+  });
+
+  document.addEventListener('click', event => {
+    if (!event.target.closest('.nav-dropdown')) {
+      document.querySelectorAll('.nav-dropdown.open').forEach(dropdown => dropdown.classList.remove('open'));
+    }
+  });
 }
 
 function setupPageFilterMenus() {
@@ -224,6 +279,26 @@ function setupPageFilterMenus() {
   });
 
   pageFilterMenuBound = true;
+}
+
+function setupPageSearchInputs() {
+  const configs = [
+    { id: 'perfSearchInput', key: 'perfSearch', render: renderPerformers },
+    { id: 'djSearchInput', key: 'djSearch', render: renderDJs },
+    { id: 'barSearchInput', key: 'barSearch', render: renderBartenders },
+    { id: 'orgSearchInput', key: 'orgSearch', render: renderOrganizers },
+    { id: 'venueSearchInput', key: 'venueSearch', render: renderVenues },
+  ];
+
+  configs.forEach(cfg => {
+    const input = document.getElementById(cfg.id);
+    if (!input) return;
+    input.value = state[cfg.key] || '';
+    input.addEventListener('input', () => {
+      state[cfg.key] = (input.value || '').trim().toLowerCase();
+      cfg.render();
+    });
+  });
 }
 
 function togglePageFilterMenu(wrapId, toggleId) {
@@ -272,6 +347,51 @@ function drawGrain() {
 function avatarClass(color) {
   const map = { pink: 'av-pink', gold: 'av-gold', purple: 'av-purple', blue: 'av-blue', teal: 'av-teal' };
   return map[color] || 'av-purple';
+}
+
+function makeOrganizerId(name) {
+  return String(name || '')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '') || 'organizer';
+}
+
+function buildOrganizersFromEvents(events) {
+  const byName = new Map();
+  (events || []).forEach(e => {
+    const eventId = String(e.id || '');
+    (e.promoters || []).forEach(name => {
+      const trimmed = String(name || '').trim();
+      if (!trimmed) return;
+      const key = trimmed.toLowerCase();
+      if (!byName.has(key)) {
+        byName.set(key, {
+          id: makeOrganizerId(trimmed),
+          personId: makeOrganizerId(trimmed),
+          name: trimmed,
+          role: 'Organizer',
+          initials: trimmed.split(/\s+/).map(w => w[0]).join('').slice(0, 2).toUpperCase() || 'OR',
+          avatarColor: 'purple',
+          bio: '',
+          socials: {},
+          events: [],
+          venues: new Set(),
+        });
+      }
+      const org = byName.get(key);
+      if (eventId && !org.events.includes(eventId)) org.events.push(eventId);
+      if (e.venue) org.venues.add(e.venue);
+    });
+  });
+
+  return [...byName.values()]
+    .map(o => ({ ...o, venues: [...o.venues].sort((a, b) => a.localeCompare(b)) }))
+    .sort((a, b) => a.name.localeCompare(b.name));
+}
+
+function matchesSearch(parts, query) {
+  if (!query) return true;
+  return parts.filter(Boolean).join(' ').toLowerCase().includes(query);
 }
 
 /* ── CALENDAR ── */
@@ -1085,15 +1205,9 @@ function eventCardHTML(e) {
   const perfPills = e.performers.map(p =>
     `<span class="eperf" onclick="event.stopPropagation();goToPerformer('${escHtml(p)}')">${escHtml(p)}</span>`
   ).join('');
-  const djPills = e.djs.map(d =>
-    `<span class="edj" onclick="event.stopPropagation();goToDJ('${escHtml(d)}')">${escHtml(d)}</span>`
-  ).join('');
-  const barPills = e.bartenders.map(b =>
-    `<span class="ebar" onclick="event.stopPropagation();goToBartender('${escHtml(b)}')">${escHtml(b)}</span>`
-  ).join('');
-  const promoterPills = e.promoters.map(p =>
-    `<span class="epromoter">${escHtml(p)}</span>`
-  ).join('');
+  const djPills = e.djs.map(d => djBadgePill(d)).join('');
+  const barPills = e.bartenders.map(b => bartenderBadgePill(b)).join('');
+  const promoterPills = e.promoters.map(p => promoterBadgePill(p)).join('');
   const beneficiaryLine = e.beneficiary
     ? `<div class="ebeneficiary">Benefiting: ${escHtml(e.beneficiary)}</div>`
     : '';
@@ -1157,15 +1271,9 @@ function showEventDetail(eventId, pushState = true) {
   const perfPills = e.performers.map(p =>
     `<span class="eperf" onclick="goToPerformer('${escHtml(p)}')">${escHtml(p)}</span>`
   ).join('');
-  const djPills = e.djs.map(d =>
-    `<span class="edj" onclick="goToDJ('${escHtml(d)}')">${escHtml(d)}</span>`
-  ).join('');
-  const barPills = e.bartenders.map(b =>
-    `<span class="ebar" onclick="goToBartender('${escHtml(b)}')">${escHtml(b)}</span>`
-  ).join('');
-  const promoterPills = e.promoters.map(p =>
-    `<span class="epromoter">${escHtml(p)}</span>`
-  ).join('');
+  const djPills = e.djs.map(d => djBadgePill(d)).join('');
+  const barPills = e.bartenders.map(b => bartenderBadgePill(b)).join('');
+  const promoterPills = e.promoters.map(p => promoterBadgePill(p)).join('');
 
   const isFreeDetail = !e.ticketUrl && (!e.cover || e.cover.toLowerCase().includes('free') || e.cover === '');
   const ticketBtn = e.ticketUrl
@@ -1267,10 +1375,10 @@ function socialsHTML(socials, style) {
 
 /* ── SHARED: profile photo or avatar ── */
 function profilePhotoHTML(person, size) {
-  size = size || '80px';
+  size = size || '110px';
   var avClass = avatarClass(person.avatarColor);
   if (person.photoUrl) {
-    return '<div class="p-photo" style="width:' + size + ';height:' + size + ';border-radius:50%;overflow:hidden;flex-shrink:0;border:1px solid var(--border2)">' +
+    return '<div class="p-photo" style="width:' + size + ';height:' + size + ';border-radius:12px;overflow:hidden;flex-shrink:0;border:1px solid var(--border2)">' +
       '<img src="' + escHtml(person.photoUrl) + '" alt="' + escHtml(person.name) + '" style="width:100%;height:100%;object-fit:cover;display:block" loading="lazy">' +
       '</div>';
   }
@@ -1288,7 +1396,8 @@ function venuePhotoHTML(venue) {
 }
 
 /* ── PERFORMERS ── */
-let perfFilterState = { roles: new Set(), tags: new Set() };
+let perfFilterState = { tags: new Set() };
+let peopleVenueFilter = new Set();
 
 function performerRoleList(p) {
   return String(p.role || '')
@@ -1300,10 +1409,6 @@ function performerRoleList(p) {
 function buildPerformerChips() {
   const menu = document.getElementById('perfFilterMenu');
   if (!menu) return;
-  const roleSet = new Set();
-  DATA.performers.forEach(p => performerRoleList(p).forEach(r => roleSet.add(r)));
-  const roles = [...roleSet].sort();
-
   const tagSet = new Set();
   DATA.performers.forEach(p => (p.tags || []).forEach(t => tagSet.add(t)));
   const preferred = ['drag', 'burlesque', 'comedy', 'singer', 'dancer', 'host', 'emcee'];
@@ -1320,19 +1425,6 @@ function buildPerformerChips() {
         </label>
       </div>
     </div>
-    ${roles.length ? `
-      <div class="cal-filter-group">
-        <div class="cal-filter-group-title">
-          <label class="cal-filter-option cal-filter-all-option">
-            <input type="checkbox" id="perfRoleAllCheck" onchange="togglePerformerRoleAll(this.checked)">
-            <span>All roles</span>
-          </label>
-        </div>
-        <div class="cal-filter-options" style="grid-template-columns:1fr;">
-          ${roles.map(role => `<label class="cal-filter-option"><input type="checkbox" class="perf-role-check" data-key="${escHtml(role)}" onchange="togglePerformerRole('${encodeURIComponent(role)}', this.checked)"><span>${escHtml(role.charAt(0).toUpperCase() + role.slice(1))}</span></label>`).join('')}
-        </div>
-      </div>
-    ` : ''}
     ${allTags.length ? `
       <div class="cal-filter-group">
         <div class="cal-filter-group-title">
@@ -1351,13 +1443,87 @@ function buildPerformerChips() {
   syncPerfFilterUI();
 }
 
-function togglePerformerRole(encodedRole, checked) {
-  const role = decodeURIComponent(encodedRole || '');
-  if (!role) return;
-  if (checked) perfFilterState.roles.add(role);
-  else perfFilterState.roles.delete(role);
-  syncPerfFilterUI();
+function buildPeopleVenueMenu() {
+  const allVenues = [...new Set(DATA.venues.map(v => v.name).filter(Boolean))].sort((a,b) => a.localeCompare(b));
+  const menuHtml = `
+    <div class="cal-filter-group">
+      <div class="cal-filter-all-line">
+        <label class="cal-filter-option cal-filter-all-option">
+          <input type="checkbox" id="peopleVenueAllCheck" checked onchange="togglePeopleVenueAll(this.checked)">
+          <span>All Venues</span>
+        </label>
+      </div>
+      <div class="cal-filter-options" style="grid-template-columns:1fr;">
+        ${allVenues.map(venue => `<label class="cal-filter-option"><input type="checkbox" class="people-venue-check" data-key="${escHtml(venue)}" onchange="togglePeopleVenue('${encodeURIComponent(venue)}', this.checked)"><span>${escHtml(venue)}</span></label>`).join('')}
+      </div>
+    </div>
+  `;
+  ['perfVenueMenu','djVenueMenu','barVenueMenu','orgVenueMenu'].forEach(id => {
+    const menu = document.getElementById(id);
+    if (menu) menu.innerHTML = menuHtml;
+  });
+  syncPeopleVenueFilterUI();
+}
+
+function togglePeopleVenue(encodedVenue, checked) {
+  const venue = decodeURIComponent(encodedVenue || '');
+  if (!venue) return;
+  if (checked) peopleVenueFilter.add(venue);
+  else peopleVenueFilter.delete(venue);
+  syncPeopleVenueFilterUI();
   renderPerformers();
+  renderDJs();
+  renderBartenders();
+  renderOrganizers();
+}
+
+function togglePeopleVenueAll(checked) {
+  if (checked) {
+    peopleVenueFilter.clear();
+  }
+  syncPeopleVenueFilterUI();
+  renderPerformers();
+  renderDJs();
+  renderBartenders();
+  renderOrganizers();
+}
+
+function syncPeopleVenueFilterUI() {
+  const count = peopleVenueFilter.size;
+  ['perfVenueToggle','djVenueToggle','barVenueToggle','orgVenueToggle'].forEach(id => {
+    const toggle = document.getElementById(id);
+    if (toggle) {
+      toggle.innerHTML = `<span class="calendar-toggle-label">Venues</span><span class="calendar-toggle-badge">${count === 0 ? 'All' : count}</span><span class="calendar-toggle-chevron">${CALENDAR_FILTER_CHEVRON_ICON}</span>`;
+    }
+  });
+
+  const allCheck = document.getElementById('peopleVenueAllCheck');
+  if (allCheck) allCheck.checked = peopleVenueFilter.size === 0;
+  document.querySelectorAll('.people-venue-check').forEach(input => {
+    const key = input.dataset.key || '';
+    input.checked = peopleVenueFilter.has(key);
+  });
+}
+
+function getPersonVenueNames(person, type) {
+  if (type === 'organizer') {
+    return new Set((person.venues || []).filter(Boolean));
+  }
+  if (type === 'bartender') {
+    return new Set((person.venues || []).filter(Boolean));
+  }
+  const venueNames = new Set();
+  (person.events || []).forEach(eventId => {
+    const event = DATA.events.find(e => String(e.id) === String(eventId));
+    if (event && event.venue) venueNames.add(event.venue);
+  });
+  return venueNames;
+}
+
+function personMatchesVenueFilter(person, type) {
+  if (peopleVenueFilter.size === 0) return true;
+  const venueNames = getPersonVenueNames(person, type);
+  return Array.from(peopleVenueFilter).some(venue => venueNames.has(venue));
 }
 
 function togglePerformerTag(encodedTag, checked) {
@@ -1374,18 +1540,7 @@ function togglePerformerAll(checked) {
     syncPerfFilterUI();
     return;
   }
-  perfFilterState.roles.clear();
   perfFilterState.tags.clear();
-  syncPerfFilterUI();
-  renderPerformers();
-}
-
-function togglePerformerRoleAll(checked) {
-  if (!checked) {
-    syncPerfFilterUI();
-    return;
-  }
-  perfFilterState.roles.clear();
   syncPerfFilterUI();
   renderPerformers();
 }
@@ -1402,20 +1557,13 @@ function togglePerformerTagAll(checked) {
 
 function syncPerfFilterUI() {
   const toggle = document.getElementById('perfFilterToggle');
-  const count = perfFilterState.roles.size + perfFilterState.tags.size;
+  const count = perfFilterState.tags.size;
   if (toggle) {
     toggle.innerHTML = `<span class="calendar-toggle-label">Category</span><span class="calendar-toggle-badge">${count === 0 ? 'All' : count}</span><span class="calendar-toggle-chevron">${CALENDAR_FILTER_CHEVRON_ICON}</span>`;
   }
 
   const allCheck = document.getElementById('perfAllCheck');
   if (allCheck) allCheck.checked = count === 0;
-
-  const roleAllCheck = document.getElementById('perfRoleAllCheck');
-  if (roleAllCheck) roleAllCheck.checked = perfFilterState.roles.size === 0;
-  document.querySelectorAll('.perf-role-check').forEach(input => {
-    const key = input.dataset.key || '';
-    input.checked = perfFilterState.roles.has(key);
-  });
 
   const tagAllCheck = document.getElementById('perfTagAllCheck');
   if (tagAllCheck) tagAllCheck.checked = perfFilterState.tags.size === 0;
@@ -1430,14 +1578,14 @@ function renderPerformers() {
   if (!grid) return;
   let list = [...DATA.performers];
 
-  if (perfFilterState.roles.size > 0) {
-    list = list.filter(p => {
-      const roles = performerRoleList(p);
-      return Array.from(perfFilterState.roles).some(role => roles.includes(role));
-    });
-  }
   if (perfFilterState.tags.size > 0) {
     list = list.filter(p => Array.from(perfFilterState.tags).some(tag => (p.tags || []).includes(tag)));
+  }
+  if (peopleVenueFilter.size > 0) {
+    list = list.filter(p => personMatchesVenueFilter(p, 'performer'));
+  }
+  if (state.perfSearch) {
+    list = list.filter(p => matchesSearch([p.name, p.role, (p.tags || []).join(' ')], state.perfSearch));
   }
   if (state.perfSortAZ) list.sort((a, b) => a.name.localeCompare(b.name));
   else list.sort((a, b) => b.name.localeCompare(a.name));
@@ -1542,6 +1690,12 @@ function renderDJs() {
   if (djFilterState.residencies.size > 0) {
     list = list.filter(d => djFilterState.residencies.has(d.residency));
   }
+  if (peopleVenueFilter.size > 0) {
+    list = list.filter(d => personMatchesVenueFilter(d, 'dj'));
+  }
+  if (state.djSearch) {
+    list = list.filter(d => matchesSearch([d.name, d.genre], state.djSearch));
+  }
   if (state.djUpcoming) list = list.filter(d => d.events.length > 0);
   if (state.djSortAZ) list.sort((a, b) => a.name.localeCompare(b.name));
   else list.sort((a, b) => b.name.localeCompare(a.name));
@@ -1626,6 +1780,12 @@ function renderBartenders() {
   const grid = document.getElementById('barGrid');
   if (!grid) return;
   let list = [...DATA.bartenders];
+  if (peopleVenueFilter.size > 0) {
+    list = list.filter(b => personMatchesVenueFilter(b, 'bartender'));
+  }
+  if (state.barSearch) {
+    list = list.filter(b => matchesSearch([b.name, (b.venues || []).join(' '), b.schedule], state.barSearch));
+  }
   if (state.barSortAZ) list.sort((a, b) => a.name.localeCompare(b.name));
   else list.sort((a, b) => b.name.localeCompare(a.name));
 
@@ -1640,6 +1800,49 @@ function renderBartenders() {
       ${b.schedule ? `<div class="p-schedule">${escHtml(b.schedule)}</div>` : ''}
       <div class="p-upcoming"><strong>${b.events.length}</strong> upcoming event${b.events.length !== 1 ? 's' : ''}</div>
     </div>`).join('');
+}
+
+function renderOrganizers() {
+  const grid = document.getElementById('orgGrid');
+  if (!grid) return;
+
+  let list = [...(DATA.organizers || [])];
+  if (peopleVenueFilter.size > 0) {
+    list = list.filter(o => personMatchesVenueFilter(o, 'organizer'));
+  }
+  if (state.orgSearch) {
+    list = list.filter(o => matchesSearch([o.name, (o.venues || []).join(' ')], state.orgSearch));
+  }
+  if (state.orgSortAZ) list.sort((a, b) => a.name.localeCompare(b.name));
+  else list.sort((a, b) => b.name.localeCompare(a.name));
+
+  const countEl = document.getElementById('orgCount');
+  if (countEl) countEl.innerHTML = `Showing <strong>${list.length}</strong> of ${(DATA.organizers || []).length} Organizers`;
+
+  grid.innerHTML = list.map((o, i) => {
+    const upcomingCount = o.events.filter(id => {
+      const ev = DATA.events.find(e => String(e.id) === String(id));
+      return ev && ev.date && new Date(ev.date + 'T12:00:00') >= new Date();
+    }).length;
+
+    return `<div class="profile-card" style="animation-delay:${i*0.04}s" onclick="showOrganizerDetail('${o.id}')">
+      ${profilePhotoHTML(o)}
+      <div class="p-name">${escHtml(o.name)}</div>
+      <div class="p-role">${o.venues.length ? escHtml(o.venues.join(' · ')) : 'Organizer'}</div>
+      <div class="p-upcoming"><strong>${upcomingCount}</strong> upcoming event${upcomingCount !== 1 ? 's' : ''}</div>
+    </div>`;
+  }).join('');
+}
+
+function showOrganizerDetail(id, pushState = true) {
+  const org = (DATA.organizers || []).find(x => x.id === id);
+  if (!org) return;
+  const events = org.events.map(eid => DATA.events.find(e => String(e.id) === String(eid))).filter(Boolean);
+  showPage('organizers', null, false);
+  document.getElementById('orgListView').style.display = 'none';
+  document.getElementById('orgDetailView').style.display = 'block';
+  document.getElementById('orgDetailContent').innerHTML = profileDetailHTML(org, events, 'organizer');
+  if (pushState) updatePageHistory('organizers', false, { organizer: String(id) });
 }
 
 function normPersonId(v) {
@@ -1789,6 +1992,9 @@ function renderVenues() {
     list = list.filter(v => Array.from(state.venueTypes).every(t => v.types.includes(t)));
   }
   if (state.venueHood !== 'all') list = list.filter(v => v.hood === state.venueHood);
+  if (state.venueSearch) {
+    list = list.filter(v => matchesSearch([v.name, v.hoodLabel, v.hood, (v.types || []).join(' '), v.address], state.venueSearch));
+  }
   if (state.venueSortAZ) list.sort((a, b) => a.name.localeCompare(b.name));
   else list.sort((a, b) => b.name.localeCompare(a.name));
 
@@ -2045,6 +2251,87 @@ async function geocodeVenue(venue) {
   return [lat, lng];
 }
 
+function ensureVenueDetailMap() {
+  const canvas = document.getElementById('venueDetailMap');
+  const status = document.getElementById('venueDetailMapStatus');
+  if (!canvas || typeof L === 'undefined') {
+    if (status) status.textContent = 'Map unavailable right now.';
+    return false;
+  }
+
+  if (venueDetailMap && venueDetailMap.getContainer() === canvas) {
+    setTimeout(() => {
+      if (venueDetailMap) venueDetailMap.invalidateSize();
+    }, 0);
+    return true;
+  }
+
+  if (venueDetailMap) {
+    venueDetailMap.remove();
+    venueDetailMap = null;
+    venueDetailMapMarker = null;
+  }
+
+  venueDetailMap = L.map(canvas, {
+    zoomControl: true,
+    scrollWheelZoom: false,
+  }).setView(VENUE_MAP_DEFAULT_CENTER, 13);
+
+  canvas.classList.add('is-branded-map');
+
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+    maxZoom: 19,
+    attribution: '&copy; OpenStreetMap contributors &copy; CARTO'
+  }).addTo(venueDetailMap);
+
+  if (status) status.textContent = 'Map ready';
+  return true;
+}
+
+async function renderVenueDetailMap(venue) {
+  const status = document.getElementById('venueDetailMapStatus');
+  if (!ensureVenueDetailMap()) return;
+
+  let coords = getVenueCoords(venue);
+  if (!coords) {
+    if (status) status.textContent = 'Pinning venue location...';
+    try {
+      coords = await geocodeVenue(venue);
+    } catch (err) {
+      console.warn('Venue detail geocode failed:', venue.name, err);
+    }
+  }
+
+  if (!coords || !venueDetailMap) {
+    if (status) status.textContent = 'Could not locate this venue yet.';
+    return;
+  }
+
+  if (venueDetailMapMarker) {
+    venueDetailMapMarker.remove();
+    venueDetailMapMarker = null;
+  }
+
+  venueDetailMapMarker = L.marker(coords, {
+    icon: L.divIcon({
+      className: `venue-pin ${markerToneClassForVenue(venue)}`,
+      html: '<span class="venue-pin-core"></span>',
+      iconSize: [20, 20],
+      iconAnchor: [10, 20],
+      popupAnchor: [0, -22],
+    })
+  }).addTo(venueDetailMap);
+
+  if (venue.address) {
+    venueDetailMapMarker.bindPopup(`<strong>${escHtml(venue.name)}</strong><br>${escHtml(venue.address)}`).openPopup();
+  } else {
+    venueDetailMapMarker.bindPopup(`<strong>${escHtml(venue.name)}</strong>`).openPopup();
+  }
+
+  venueDetailMap.setView(coords, 15);
+  if (status) status.textContent = `Pinned ${venue.name}`;
+}
+
 function clearVenueMapMarkers() {
   venueMapMarkers.forEach(marker => marker.remove());
   venueMapMarkers = [];
@@ -2220,8 +2507,8 @@ function syncVenueFilterUI() {
 function profileDetailHTML(person, events, type) {
   const avClass = avatarClass(person.avatarColor);
   const detailPhoto = person.photoUrl
-    ? ('<div class="detail-avatar" style="width:80px;height:80px;border-radius:50%;overflow:hidden;border:1px solid var(--border2);flex-shrink:0">' +
-       '<img src="' + escHtml(person.photoUrl) + '" alt="' + escHtml(person.name) + '" style="width:100%;height:100%;object-fit:cover;display:block">' +
+    ? ('<div class="detail-avatar" style="border-radius:14px;border:1px solid var(--border2);flex-shrink:0">' +
+       '<img src="' + escHtml(person.photoUrl) + '" alt="' + escHtml(person.name) + '" style="border-radius:14px;width:100%;height:100%;object-fit:cover;display:block; border:2px solid var(--red)">' +
        '</div>')
     : ('<div class="detail-avatar ' + avClass + '">' + escHtml(person.initials) + '</div>');
   const extraInfo = type === 'dj'
@@ -2238,42 +2525,7 @@ function profileDetailHTML(person, events, type) {
     : 'No upcoming shows scheduled';
 
   const eventRows = upcomingOnly.length
-    ? upcomingOnly.map(e => {
-        const perfPills = e.performers.map(p =>
-          `<span class="eperf" onclick="event.stopPropagation();goToPerformer('${escHtml(p)}')">${escHtml(p)}</span>`
-        ).join('');
-        const djPills = e.djs.map(d =>
-          `<span class="edj" onclick="event.stopPropagation();goToDJ('${escHtml(d)}')">${escHtml(d)}</span>`
-        ).join('');
-        const barPills = e.bartenders.map(b =>
-          `<span class="ebar" onclick="event.stopPropagation();goToBartender('${escHtml(b)}')">${escHtml(b)}</span>`
-        ).join('');
-        const ticketBtn = e.ticketUrl
-          ? `<a href="${escHtml(e.ticketUrl)}" target="_blank" rel="noopener" onclick="event.stopPropagation()"><button class="ticket-btn" style="font-size:9px;padding:4px 10px">Tickets</button></a>`
-          : (!e.cover || e.cover.toLowerCase().includes('free'))
-            ? `<span class="free-badge" style="font-size:9px;padding:3px 8px">Free</span>`
-            : '';
-        return `<div class="profile-event-card">
-          <div class="profile-event-top">
-            <div class="profile-event-date">${escHtml(e.day.slice(0,3))} ${escHtml(e.dateNum)} ${escHtml(e.month)}</div>
-            <div class="profile-event-time">${escHtml(e.time)} ${escHtml(e.ampm)}</div>
-            ${ticketBtn}
-          </div>
-          <div class="profile-event-name">${escHtml(e.name)}</div>
-          <div class="profile-event-venue">${escHtml(e.venue)}<span style="color:var(--text3);margin-left:4px">· ${escHtml(e.location)}</span></div>
-          ${(() => {
-            const profileTags = [
-              e.vibe ? `<span class="etag etag-vibe">${escHtml(e.vibe)}</span>` : '',
-              e.age ? `<span class="etag etag-age">${escHtml(e.age)}</span>` : '',
-              e.cover && !e.cover.toLowerCase().includes('free') ? `<span class="etag etag-type">${escHtml(e.cover)}</span>` : ''
-            ].filter(Boolean).join('');
-            return profileTags ? `<div class="etags" style="margin:6px 0">${profileTags}</div>` : '';
-          })()}
-          ${perfPills  ? `<div class="eperfs">${perfPills}</div>`   : ''}
-          ${djPills    ? `<div class="edjs">${djPills}</div>`       : ''}
-          ${barPills   ? `<div class="ebars">${barPills}</div>`     : ''}
-        </div>`;
-      }).join('')
+    ? `<div class="detail-event-cards">${upcomingOnly.map(e => eventCardHTML(e)).join('')}</div>`
     : `<div style="font-size:13px;color:var(--text3);padding:1rem 0">${emptyStateText}</div>`;
 
   return `
@@ -2296,12 +2548,21 @@ function profileDetailHTML(person, events, type) {
 
 /* ── SORT toggles ── */
 function setSortDirection(which, ascending) {
-  const key = which === 'perf' ? 'perfSortAZ' : which === 'dj' ? 'djSortAZ' : which === 'bar' ? 'barSortAZ' : 'venueSortAZ';
+  const key = which === 'perf'
+    ? 'perfSortAZ'
+    : which === 'dj'
+    ? 'djSortAZ'
+    : which === 'bar'
+    ? 'barSortAZ'
+    : which === 'org'
+    ? 'orgSortAZ'
+    : 'venueSortAZ';
   state[key] = !!ascending;
   syncSortMenus();
   if (which === 'perf') renderPerformers();
   if (which === 'dj') renderDJs();
   if (which === 'bar') renderBartenders();
+  if (which === 'org') renderOrganizers();
   if (which === 'venue') renderVenues();
 }
 
@@ -2310,6 +2571,7 @@ function syncSortMenus() {
     ['perf', state.perfSortAZ, 'perfSortToggle', 'perfSort'],
     ['dj', state.djSortAZ, 'djSortToggle', 'djSort'],
     ['bar', state.barSortAZ, 'barSortToggle', 'barSort'],
+    ['org', state.orgSortAZ, 'orgSortToggle', 'orgSort'],
     ['venue', state.venueSortAZ, 'venueSortToggle', 'venueSort'],
   ];
 
@@ -2325,7 +2587,7 @@ function syncSortMenus() {
 }
 
 function toggleSort(which, el) {
-  const key = which === 'perf' ? 'perfSortAZ' : which === 'dj' ? 'djSortAZ' : which === 'bar' ? 'barSortAZ' : 'venueSortAZ';
+  const key = which === 'perf' ? 'perfSortAZ' : which === 'dj' ? 'djSortAZ' : which === 'bar' ? 'barSortAZ' : which === 'org' ? 'orgSortAZ' : 'venueSortAZ';
   state[key] = !state[key];
   if (el) {
     el.classList.toggle('active', state[key]);
@@ -2335,6 +2597,7 @@ function toggleSort(which, el) {
   if (which === 'perf')  renderPerformers();
   if (which === 'dj')    renderDJs();
   if (which === 'bar')   renderBartenders();
+  if (which === 'org')   renderOrganizers();
   if (which === 'venue') renderVenues();
 }
 
@@ -2368,39 +2631,27 @@ function showVenueDetail(name, pushState = true) {
   ].filter(Boolean).join('');
 
   const eventRows = upcomingEvents.length
-    ? upcomingEvents.map(e => {
-        const perfPills = e.performers.map(p =>
-          `<span class="eperf" onclick="goToPerformer('${escHtml(p)}')">${escHtml(p)}</span>`
-        ).join('');
-        const djPills = e.djs.map(d =>
-          `<span class="edj" onclick="goToDJ('${escHtml(d)}')">${escHtml(d)}</span>`
-        ).join('');
-        return `<div class="detail-event-row" style="flex-direction:column;align-items:flex-start;gap:6px">
-          <div style="display:flex;align-items:baseline;gap:1rem;width:100%">
-            <div class="detail-event-date">${escHtml(e.day.slice(0,3))} ${escHtml(e.dateNum)} ${escHtml(e.month)}</div>
-            <div class="detail-event-name" style="flex:1">${escHtml(e.name)}</div>
-            <div style="font-size:11px;color:var(--text3)">${escHtml(e.time)} ${escHtml(e.ampm)}</div>
-          </div>
-          ${(() => {
-            const venueTags = [
-              e.vibe ? `<span class="etag etag-vibe">${escHtml(e.vibe)}</span>` : '',
-              e.age ? `<span class="etag etag-age">${escHtml(e.age)}</span>` : '',
-              e.cover ? `<span class="etag etag-type">${escHtml(e.cover)}</span>` : ''
-            ].filter(Boolean).join('');
-            return venueTags ? `<div style="display:flex;gap:5px;flex-wrap:wrap">${venueTags}</div>` : '';
-          })()}
-          ${perfPills ? `<div class="eperfs">${perfPills}</div>` : ''}
-          ${djPills   ? `<div class="edjs">${djPills}</div>`     : ''}
-        </div>`;
-      }).join('')
+    ? `<div class="detail-event-cards">${upcomingEvents.map(e => eventCardHTML(e)).join('')}</div>`
     : `<div style="font-size:13px;color:var(--text3);padding:1rem 0">No upcoming events scheduled</div>`;
 
   document.getElementById('venueDetailContent').innerHTML = `
-    ${photoSection}
-    <div class="detail-name">${escHtml(v.name)}</div>
-    <div class="venue-badges" style="margin-bottom:1rem">${badges}</div>
-    ${socialsHTML(v.socials)}
-    <div class="event-detail-meta-row" style="margin:1rem 0 2rem">${metaItems}</div>
+    <div class="venue-detail-top">
+      <div class="venue-detail-main">
+        ${photoSection}
+        <div class="detail-name">${escHtml(v.name)}</div>
+        <div class="venue-badges" style="margin-bottom:1rem">${badges}</div>
+        ${socialsHTML(v.socials)}
+        <div class="event-detail-meta-row" style="margin:1rem 0 0">${metaItems}</div>
+      </div>
+      <div class="venue-detail-map-shell">
+        <div class="venue-detail-map-header">
+          <div class="venue-map-kicker">Location</div>
+          <div class="venue-map-title">Find this venue</div>
+        </div>
+        <div class="venue-map-canvas" id="venueDetailMap" aria-label="Map pinned to ${escHtml(v.name)}"></div>
+        <div class="venue-map-status" id="venueDetailMapStatus">Preparing map...</div>
+      </div>
+    </div>
     <div class="detail-section">
       <div class="detail-section-title">Upcoming events</div>
       ${eventRows}
@@ -2408,6 +2659,7 @@ function showVenueDetail(name, pushState = true) {
 
   document.getElementById('venueListView').style.display = 'none';
   document.getElementById('venueDetailView').style.display = 'block';
+  renderVenueDetailMap(v);
   if (pushState) updatePageHistory('venues', false, { venue: name });
   window.scrollTo(0, 0);
 }
@@ -2423,6 +2675,7 @@ function backToList(section) {
     performers: ['perfListView', 'perfDetailView'],
     djs:        ['djListView',   'djDetailView'],
     bartenders: ['barListView',  'barDetailView'],
+    organizers: ['orgListView',  'orgDetailView'],
     venues:     ['venueListView','venueDetailView'],
   };
   const [list, detail] = views[section] || [];

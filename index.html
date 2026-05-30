@@ -40,6 +40,7 @@
             <div class="nav-dropdown-item" data-page="performers" onclick="showPage('performers',this)">Performers</div>
             <div class="nav-dropdown-item" data-page="djs" onclick="showPage('djs',this)">DJs</div>
             <div class="nav-dropdown-item" data-page="bartenders" onclick="showPage('bartenders',this)">Bartenders</div>
+            <div class="nav-dropdown-item" data-page="organizers" onclick="showPage('organizers',this)">Organizers</div>
           </div>
         </div>
         <div class="nav-item" data-page="venues" onclick="showPage('venues',this)">Venues</div>
@@ -127,11 +128,18 @@
           <div class="hero-title">Performers</div>
           <div class="hero-sub">Click anyone to see their upcoming shows</div>
         </div>
+        <div class="page-search-row">
+          <input type="search" id="perfSearchInput" class="page-search-input" placeholder="Search performers by name, role, or tag" aria-label="Search performers">
+        </div>
         <div class="filters-bar page-filters" id="perfFiltersBar">
           <span class="filter-label">Filter:</span>
           <div class="calendar-filter-wrap page-filter-wrap" id="perfFilterWrap">
             <button class="sort-btn calendar-filter-toggle" id="perfFilterToggle" onclick="togglePageFilterMenu('perfFilterWrap','perfFilterToggle')">Category</button>
             <div class="calendar-filter-menu" id="perfFilterMenu"></div>
+          </div>
+          <div class="calendar-filter-wrap page-filter-wrap" id="perfVenueWrap">
+            <button class="sort-btn calendar-filter-toggle" id="perfVenueToggle" onclick="togglePageFilterMenu('perfVenueWrap','perfVenueToggle')">Venues</button>
+            <div class="calendar-filter-menu" id="perfVenueMenu"></div>
           </div>
           <div class="calendar-filter-wrap page-filter-wrap" id="perfSortWrap">
             <button class="sort-btn calendar-filter-toggle" id="perfSortToggle" onclick="togglePageFilterMenu('perfSortWrap','perfSortToggle')">Sort</button>
@@ -164,6 +172,9 @@
           <div class="hero-eyebrow">The people keeping the floor alive</div>
           <div class="hero-title">DJs</div>
           <div class="hero-sub">Click any DJ to see their upcoming sets</div>
+        </div>
+        <div class="page-search-row">
+          <input type="search" id="djSearchInput" class="page-search-input" placeholder="Search DJs by name or genre" aria-label="Search DJs">
         </div>
         <div class="filters-bar page-filters" id="djFiltersBar">
           <span class="filter-label">Filter:</span>
@@ -201,8 +212,11 @@
               </div>
             </div>
           </div>
+          <div class="calendar-filter-wrap page-filter-wrap" id="djVenueWrap">
+            <button class="sort-btn calendar-filter-toggle" id="djVenueToggle" onclick="togglePageFilterMenu('djVenueWrap','djVenueToggle')">Venues</button>
+            <div class="calendar-filter-menu" id="djVenueMenu"></div>
+          </div>
           <div class="calendar-filter-wrap page-filter-wrap" id="djSortWrap">
-            <button class="sort-btn calendar-filter-toggle" id="djSortToggle" onclick="togglePageFilterMenu('djSortWrap','djSortToggle')">Sort</button>
             <div class="calendar-filter-menu calendar-filter-menu-narrow" id="djSortMenu">
               <div class="cal-filter-group">
                 <div class="cal-filter-options" style="grid-template-columns:1fr;">
@@ -233,8 +247,15 @@
           <div class="hero-title">Bartenders</div>
           <div class="hero-sub">The faces you love to see at the end of the bar</div>
         </div>
+        <div class="page-search-row">
+          <input type="search" id="barSearchInput" class="page-search-input" placeholder="Search bartenders by name or venue" aria-label="Search bartenders">
+        </div>
         <div class="filters-bar page-filters" id="barFiltersBar">
           <span class="filter-label">Filter:</span>
+          <div class="calendar-filter-wrap page-filter-wrap" id="barVenueWrap">
+            <button class="sort-btn calendar-filter-toggle" id="barVenueToggle" onclick="togglePageFilterMenu('barVenueWrap','barVenueToggle')">Venues</button>
+            <div class="calendar-filter-menu" id="barVenueMenu"></div>
+          </div>
           <div class="calendar-filter-wrap page-filter-wrap" id="barSortWrap">
             <button class="sort-btn calendar-filter-toggle" id="barSortToggle" onclick="togglePageFilterMenu('barSortWrap','barSortToggle')">Sort</button>
             <div class="calendar-filter-menu calendar-filter-menu-narrow" id="barSortMenu">
@@ -258,6 +279,47 @@
       </div>
     </div>
 
+    <!-- ORGANIZERS PAGE -->
+    <div class="page" id="page-organizers">
+      <div id="orgListView">
+        <div class="page-hero calendar-hero-slim has-left-icon has-glass-icon">
+          <img src="FL_glass.webp" alt="Fruit Loop cocktail icon" class="hero-left-icon hero-glass" onerror="this.onerror=null;this.src='FL_whole_inverted.png';">
+          <div class="hero-eyebrow">The crews behind the nights</div>
+          <div class="hero-title">Organizers</div>
+          <div class="hero-sub">Promoters and hosts making it happen</div>
+        </div>
+        <div class="page-search-row">
+          <input type="search" id="orgSearchInput" class="page-search-input" placeholder="Search organizers by name or venue" aria-label="Search organizers">
+        </div>
+        <div class="filters-bar page-filters" id="orgFiltersBar">
+          <span class="filter-label">Filter:</span>
+          <div class="calendar-filter-wrap page-filter-wrap" id="orgVenueWrap">
+            <button class="sort-btn calendar-filter-toggle" id="orgVenueToggle" onclick="togglePageFilterMenu('orgVenueWrap','orgVenueToggle')">Venues</button>
+            <div class="calendar-filter-menu" id="orgVenueMenu"></div>
+          </div>
+          <div class="calendar-filter-wrap page-filter-wrap" id="orgSortWrap">
+            <button class="sort-btn calendar-filter-toggle" id="orgSortToggle" onclick="togglePageFilterMenu('orgSortWrap','orgSortToggle')">Sort</button>
+            <div class="calendar-filter-menu calendar-filter-menu-narrow" id="orgSortMenu">
+              <div class="cal-filter-group">
+                <div class="cal-filter-options" style="grid-template-columns:1fr;">
+                  <label class="cal-filter-option"><input type="radio" name="orgSort" value="az" checked onchange="setSortDirection('org', true)"><span>A-Z</span></label>
+                  <label class="cal-filter-option"><input type="radio" name="orgSort" value="za" onchange="setSortDirection('org', false)"><span>Z-A</span></label>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="results-bar"><span class="results-count" id="orgCount"></span></div>
+        <div class="profile-grid" id="orgGrid">
+          <div class="loading-state">Loading organizers...</div>
+        </div>
+      </div>
+      <div class="detail-view" id="orgDetailView" style="display:none">
+        <div class="back-btn" onclick="backToList('organizers')">&#8592; All organizers</div>
+        <div id="orgDetailContent"></div>
+      </div>
+    </div>
+
     <!-- VENUES PAGE -->
     <div class="page" id="page-venues">
       <div id="venueListView">
@@ -266,6 +328,9 @@
           <div class="hero-eyebrow">Providence &amp; surrounding area</div>
           <div class="hero-title">Venues</div>
           <div class="hero-sub">Hover the <span class="info-i">i</span> on any filter to learn what it means &nbsp;·&nbsp; Select multiple types to combine</div>
+        </div>
+        <div class="page-search-row">
+          <input type="search" id="venueSearchInput" class="page-search-input" placeholder="Search venues by name, area, or type" aria-label="Search venues">
         </div>
         <div class="filters-bar page-filters" id="venueFiltersBar">
           <span class="filter-label">Filter:</span>
@@ -372,7 +437,7 @@
             </div>
           </div>
           <div class="form-group">
-            <label>Venue <span class="req">*</span></label>
+            <label>Venues <span class="req">*</span></label>
             <input type="text" name="venue" required placeholder="e.g. Fête, Providence">
           </div>
           <div class="form-row">
