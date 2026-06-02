@@ -46,6 +46,7 @@ const SHEET_TABS = {
   djs:        'DJs',
   bartenders: 'Bartenders',
   venues:     'Venues',
+  tagGroups:  'TagGroups',
 };
 
 const RECUR_MONTHS_AHEAD = 2;
@@ -439,6 +440,48 @@ function parseCSV(text) {
   });
 }
 
+function _normalizeTagKey(value) {
+  return String(value || '').trim().toLowerCase().replace(/\s+/g, ' ');
+}
+
+function _normalizeGroupKey(value) {
+  return String(value || '').trim().toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
+}
+
+function parseTagGroups(rows) {
+  const groupMap = new Map();
+  const tagToGroup = new Map();
+  const tagMeta = new Map();
+
+  rows.forEach(row => {
+    const rawTag = row.Tag || row.TagName || row.Name || row.Label || row.TagLabel || '';
+    const rawGroup = row.Group || row.Category || row.Parent || row.ParentCategory || row.GroupKey || '';
+    if (!rawTag || !rawGroup) return;
+
+    const tagKey = _normalizeTagKey(rawTag);
+    const groupKey = _normalizeGroupKey(rawGroup) || _normalizeTagKey(rawGroup).replace(/\s+/g, '-');
+    const groupLabel = row.GroupLabel || row.CategoryLabel || row.Label || rawGroup;
+    const iconKey = row.IconKey || row.Icon || '';
+
+    if (!groupMap.has(groupKey)) {
+      groupMap.set(groupKey, { key: groupKey, label: groupLabel, iconKey, tags: [] });
+    }
+    const group = groupMap.get(groupKey);
+    if (!group.tags.includes(tagKey)) {
+      group.tags.push(tagKey);
+    }
+
+    tagToGroup.set(tagKey, groupKey);
+    tagMeta.set(tagKey, { tag: tagKey, rawTag, groupKey, groupLabel, iconKey });
+  });
+
+  return {
+    groupDefs: [...groupMap.values()],
+    tagToGroup,
+    tagMeta,
+  };
+}
+
 function _linkPeople(events, performers, djs, bartenders) {
   const find = (list, name) => list.find(p => p.name.toLowerCase() === name.toLowerCase());
   events.forEach(e => {
@@ -450,14 +493,16 @@ function _linkPeople(events, performers, djs, bartenders) {
 
 /* ── Main loader ── */
 async function loadData() {
-  const [evRows, perfRows, djRows, barRows, venueRows] = await Promise.all([
+  const [evRows, perfRows, djRows, barRows, venueRows, tagGroups] = await Promise.all([
     fetchSheet(SHEET_TABS.events),
     fetchSheet(SHEET_TABS.performers),
     fetchSheet(SHEET_TABS.djs),
     fetchSheet(SHEET_TABS.bartenders),
     fetchSheet(SHEET_TABS.venues),
+    fetchSheet(SHEET_TABS.tagGroups),
   ]);
 
+  const tagGroupData = parseTagGroups(Array.isArray(tagGroups) ? tagGroups : []);
   const usingSheet = evRows !== null;
   const events     = mergeEvents(Array.isArray(evRows) ? evRows : []);
   const performers = Array.isArray(perfRows) ? perfRows.map(rowToPerformer) : [];
@@ -467,5 +512,15 @@ async function loadData() {
 
   _linkPeople(events, performers, djs, bartenders);
 
-  return { events, performers, djs, bartenders, venues, usingSheet };
+  return {
+    events,
+    performers,
+    djs,
+    bartenders,
+    venues,
+    tagGroups: tagGroupData.groupDefs,
+    tagGroupMap: tagGroupData.tagToGroup,
+    tagGroupMeta: tagGroupData.tagMeta,
+    usingSheet,
+  };
 }

@@ -14,9 +14,9 @@
   </script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;1,9..40,300&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Righteous&family=Fraunces:ital,wght@0,700;1,700&family=Syne:wght@700&family=Space+Grotesk:wght@400;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
-  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/style.css?v=20260602155633-6f559cd">
 </head>
 <body>
   <canvas id="grainCanvas" aria-hidden="true"></canvas>
@@ -27,10 +27,10 @@
         <img src="FL_logo_black.png" alt="The Fruit Loop Providence" class="site-logo-img">
         <div>
           <div class="logo">Fruit Loop <em>PVD</em></div>
-          <div class="logo-sub">LGBTQIA+ Events &nbsp;·&nbsp; Providence &amp; Beyond</div>
+          <div class="logo-sub">LGBTQIA+ Events in Providence</div>
         </div>
+        <button class="nav-toggle" id="navToggle" aria-label="Toggle menu">&#9776;</button>
       </div>
-      <button class="nav-toggle" id="navToggle" aria-label="Toggle menu">&#9776;</button>
       <nav class="site-nav" id="siteNav">
         <div class="nav-item" data-page="about" onclick="showPage('about',this)">About</div>
         <div class="nav-item active" data-page="calendar" onclick="showPage('calendar',this)">Calendar</div>
@@ -63,9 +63,15 @@
           <div class="calendar-sidebar">
             <div class="calendar-sidebar-header">
               <button class="sort-btn calendar-sidebar-toggle" id="calendarSidebarToggle" onclick="toggleCalendarSidebar()" aria-label="Hide calendar" title="Hide calendar"></button>
-              <a class="sort-btn instagram-link" href="https://www.instagram.com/fruit_looppvd/?hl=en" target="_blank" rel="noopener" aria-label="Open Instagram">
-                <svg fill="currentColor" width="20px" height="20px" viewBox="-2 -2 24 24" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMinYMin" class="jam jam-instagram"><path d="M14.017 0h-8.07A5.954 5.954 0 0 0 0 5.948v8.07a5.954 5.954 0 0 0 5.948 5.947h8.07a5.954 5.954 0 0 0 5.947-5.948v-8.07A5.954 5.954 0 0 0 14.017 0zm3.94 14.017a3.94 3.94 0 0 1-3.94 3.94h-8.07a3.94 3.94 0 0 1-3.939-3.94v-8.07a3.94 3.94 0 0 1 3.94-3.939h8.07a3.94 3.94 0 0 1 3.939 3.94v8.07z"/><path d="M9.982 4.819A5.17 5.17 0 0 0 4.82 9.982a5.17 5.17 0 0 0 5.163 5.164 5.17 5.17 0 0 0 5.164-5.164A5.17 5.17 0 0 0 9.982 4.82zm0 8.319a3.155 3.155 0 1 1 0-6.31 3.155 3.155 0 0 1 0 6.31z"/><circle cx="15.156" cy="4.858" r="1.237"/></svg>
-              </a>
+              <div class="social-wrapper">
+                <a class="sort-btn tiktok-link" id="tiktokLink" href="https://www.tiktok.com/@fruit.loop.pvd" target="_blank" rel="noopener" aria-label="Open TikTok">
+                </a>
+                <a class="sort-btn facebook-link" id="facebookLink" href="https://www.facebook.com/groups/923286946177583" target="_blank" rel="noopener" aria-label="Open Facebook">
+                </a>
+                <a class="sort-btn instagram-link" id="instagramLink" href="https://www.instagram.com/fruit_looppvd/?hl=en" target="_blank" rel="noopener" aria-label="Open Instagram">
+                </a>
+              </div>
+
             </div>
             <div class="calendar-sidebar-body" id="calendarSidebarBody">
               <div class="filters-bar" id="calendarFilters">
@@ -89,6 +95,10 @@
                 <div class="calendar-filter-wrap" id="calendarOrganizerWrap">
                   <button class="sort-btn calendar-filter-toggle" id="calendarOrganizerToggle" onclick="toggleCalendarOrganizerMenu()">Organizers</button>
                   <div class="calendar-filter-menu calendar-filter-menu-narrow" id="calendarOrganizerMenu"></div>
+                </div>
+                <div class="calendar-filter-wrap" id="calendarAgeWrap">
+                  <button class="sort-btn calendar-filter-toggle" id="calendarAgeToggle" onclick="toggleCalendarAgeMenu()">Ages</button>
+                  <div class="calendar-filter-menu calendar-filter-menu-narrow" id="calendarAgeMenu"></div>
                 </div>
                 <div class="calendar-filter-wrap" id="calendarCoverWrap">
                   <button class="sort-btn calendar-filter-toggle" id="calendarCoverToggle" onclick="toggleCalendarCoverMenu()">Cover</button>
@@ -184,7 +194,7 @@
               <div class="cal-filter-all-line">
                 <label class="cal-filter-option cal-filter-all-option">
                   <input type="checkbox" id="djResidencyAllCheck" onchange="toggleDjResidencyAll(this.checked)">
-                  <span>All residency types</span>
+                  <span class="filter-all-icon cal-filter-group-icon" data-filter-label="All residency types"></span><span>All residency types</span>
                 </label>
               </div>
               <div class="cal-filter-group">
@@ -202,7 +212,7 @@
               <div class="cal-filter-all-line">
                 <label class="cal-filter-option cal-filter-all-option">
                   <input type="checkbox" id="djUpcomingAllCheck" onchange="setDjUpcomingOnly(!this.checked)">
-                  <span>All DJs</span>
+                  <span class="filter-all-icon cal-filter-group-icon" data-filter-label="All DJs"></span><span>All DJs</span>
                 </label>
               </div>
               <div class="cal-filter-group">
@@ -243,7 +253,7 @@
       <div id="barListView">
         <div class="page-hero calendar-hero-slim has-left-icon has-glass-icon">
           <img src="FL_glass.webp" alt="Fruit Loop cocktail icon" class="hero-left-icon hero-glass" onerror="this.onerror=null;this.src='FL_whole_inverted.png';">
-          <div class="hero-eyebrow">Behind the stick</div>
+          <div class="hero-eyebrow">Mixing your favorite cocktails</div>
           <div class="hero-title">Bartenders</div>
           <div class="hero-sub">The faces you love to see at the end of the bar</div>
         </div>
@@ -383,7 +393,7 @@
       <div class="page-hero calendar-hero-slim has-left-icon has-glass-icon">
         <img src="FL_glass.webp" alt="Fruit Loop cocktail icon" class="hero-left-icon hero-glass" onerror="this.onerror=null;this.src='FL_whole_inverted.png';">
         <div class="hero-eyebrow">Providence, RI</div>
-        <div class="hero-title">About<em>Fruit Loop</em></div>
+        <div class="hero-title">About <em>Fruit Loop</em></div>
       </div>
       <div class="about-body">
         <div class="about-section">
@@ -417,7 +427,7 @@
       <div class="page-hero calendar-hero-slim has-left-icon has-glass-icon">
         <img src="FL_glass.webp" alt="Fruit Loop cocktail icon" class="hero-left-icon hero-glass" onerror="this.onerror=null;this.src='FL_whole_inverted.png';">
         <div class="hero-eyebrow">Get listed</div>
-        <div class="hero-title">Submit<em>an Event</em></div>
+        <div class="hero-title">Submit <em>an Event</em></div>
         <div class="hero-sub">We review all submissions before they go live — usually within 48 hours</div>
       </div>
       <div class="submit-wrap">
@@ -509,20 +519,22 @@
     <div class="footer-inner">
       <div class="footer-logo">Fruit Loop <em>PVD</em></div>
       <div class="footer-links">
-        <a href="https://www.instagram.com/fruit_looppvd/" target="_blank" rel="noopener">Instagram</a>
-        <a href="https://www.tiktok.com/@fruit.loop.pvd" target="_blank" rel="noopener">TikTok</a>
-        <a href="https://www.facebook.com/groups/923286946177583" target="_blank" rel="noopener">Facebook</a>
+        <a id="footerInstagramLink" class="footer-social-link" href="https://www.instagram.com/fruit_looppvd/" target="_blank" rel="noopener">Instagram</a>
+        <a id="footerTiktokLink" class="footer-social-link" href="https://www.tiktok.com/@fruit.loop.pvd" target="_blank" rel="noopener">TikTok</a>
+        <a id="footerFacebookLink" class="footer-social-link" href="https://www.facebook.com/groups/923286946177583" target="_blank" rel="noopener">Facebook</a>
         <span class="footer-divider">·</span>
         <span class="text-link" onclick="showPage('submit')">Submit an event</span>
         <span class="footer-divider">·</span>
         <a href="https://fruitlooppvd.printful.me/" target="_blank" rel="noopener">Merch</a>
       </div>
       <div class="footer-copy">A community resource for Providence LGBTQIA+ nightlife</div>
+      <div class="footer-webwise-copy">Website developed by <a class="webwise-link" href="https://webwisetechnology.com/" target="_blank" rel="noopener">Webwise Technology</a></div>
     </div>
   </footer>
 
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
-  <script src="js/data.js"></script>
-  <script src="js/app.js"></script>
+  <script src="js/data.js?v=20260602155633-6f559cd" defer></script>
+  <script src="js/svg-icons.js?v=20260602155633-6f559cd" defer></script>
+  <script src="js/app.js?v=20260602155633-6f559cd" defer></script>
 </body>
 </html>

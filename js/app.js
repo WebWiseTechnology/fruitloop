@@ -11,6 +11,7 @@ const state = {
   calVenues: new Set(),
   calOrganizers: new Set(),
   calCovers: new Set(),
+  calAges: new Set(),
   calPerformers: new Set(),
   perfSortAZ:   true,
   djFilter:     'all',
@@ -50,13 +51,14 @@ const VENUE_MAP_DEFAULT_CENTER = [41.820889, -71.412323];
 const VENUE_MAP_LOOP_CENTER = [41.820889, -71.412323];
 const VENUE_MAP_LOOP_RADIUS_M = 420;
 
-const CALENDAR_TOGGLE_ICON_SHOW = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0"/><circle cx="12" cy="12" r="3"/></svg>';
-const CALENDAR_TOGGLE_ICON_HIDE = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10.733 5.076a10.744 10.744 0 0 1 11.205 6.575 1 1 0 0 1 0 .696 10.747 10.747 0 0 1-1.444 2.49"/><path d="M14.084 14.158a3 3 0 0 1-4.242-4.242"/><path d="M17.479 17.499a10.75 10.75 0 0 1-15.417-5.151 1 1 0 0 1 0-.696 10.75 10.75 0 0 1 4.446-5.143"/><path d="m2 2 20 20"/></svg>';
-const CALENDAR_FILTER_CHEVRON_ICON = '<svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M37 18L25 30L13 18" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+// SVG icon constants and helpers were moved into js/svg-icons.js
 
-const DJ_BADGE_ICON = '<svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" class="badge-icon badge-icon-left"><rect x="3" y="6" width="26" height="20" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><circle cx="13" cy="16" r="7" stroke="currentColor" stroke-width="2"/><circle cx="13" cy="16" r="2" stroke="currentColor" stroke-width="2"/><circle cx="24" cy="10" r="1" stroke="currentColor" stroke-width="2"/><polyline points="22,23 24,21 24,10" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>'; 
-const BARTENDER_BADGE_ICON = '<svg viewBox="-2 0 160 160" fill="currentColor" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" class="badge-icon badge-icon-left"><g clip-path="url(#clip0)"><path d="M155.491 33.0349C155.313 32.587 155.169 32.1266 155.062 31.6569C153.921 25.7382 150.752 20.4023 146.101 16.5681C137.236 9.1397 124.47 8.33851 112.784 14.4805C106.243 17.9276 101.117 23.5587 98.299 30.3942L58.7093 31.2473L53.383 23.8961C48.6416 17.3531 44.0429 11.0063 39.4236 4.67458C38.5741 3.39473 37.3688 2.39099 35.9567 1.78643C34.5446 1.18187 32.9869 1.00308 31.4745 1.27175C30.3355 1.39325 29.1882 1.41496 28.0454 1.33712C27.6548 1.32334 27.2648 1.30908 26.8769 1.30187C23.9207 1.24673 20.9635 1.18878 18.0061 1.12753C14.1118 1.04877 10.2177 0.973031 6.3234 0.901271C6.19213 0.901271 6.05427 0.893718 5.91447 0.887811C5.12681 0.766525 4.32104 0.902896 3.61729 1.27687C2.01779 2.4189 1.23544 3.39346 1.15602 4.34384C1.0556 5.55413 2.26079 7.13958 3.36475 7.69156C4.75666 8.26657 6.24738 8.5656 7.75337 8.57223L7.85851 8.57925C14.8971 9.06823 21.9143 9.5081 28.7133 9.88615C29.3834 9.89679 30.0383 10.0864 30.6105 10.4355C31.1827 10.7845 31.6514 11.2807 31.9674 11.8718C33.9745 14.9428 36.0908 18.01 38.1372 20.9773C39.2989 22.6621 40.4613 24.3474 41.6092 26.0408C42.5019 27.3535 43.3632 28.7045 44.3609 30.266C44.6726 30.7523 44.9976 31.261 45.3415 31.7972C44.9477 31.7972 44.5788 31.7922 44.2218 31.7895C42.8435 31.7803 41.6546 31.7713 40.485 31.8107L37.3347 31.9126C32.846 32.0563 28.2042 32.2054 23.642 32.483C20.9563 32.6451 18.8891 34.0098 17.9702 36.2243C16.9758 38.6225 18.4519 40.4636 19.6373 41.9416L19.92 42.2967C20.1307 42.5592 20.3577 42.8002 20.5763 43.03L20.6366 43.0953C22.0367 44.5634 23.4388 46.0293 24.8438 47.4929C27.8124 50.5856 30.8821 53.7839 33.8396 56.981C39.005 62.5638 44.1608 68.1568 49.3064 73.7586C55.4347 80.4198 61.7718 87.3067 68.0326 94.0565C68.5459 94.5724 68.9233 95.2071 69.1313 95.9041C69.3394 96.6018 69.3709 97.3395 69.2239 98.0523C68.6752 102.397 68.3483 105.917 68.1941 109.128C67.8482 116.351 67.5436 123.695 67.2489 130.798C67.0612 135.313 66.8696 139.828 66.6753 144.343C66.6346 145.27 66.5127 146.197 66.3841 147.178C66.3473 147.454 66.3112 147.734 66.2757 148.016H64.0863C61.8094 148.011 59.6521 148.007 57.4941 148.03C56.4336 148 55.3738 148.095 54.3354 148.313C51.7442 148.958 51.1395 150.624 51.089 151.907C51.0135 153.815 52.0079 155.161 53.9573 155.8C54.7487 156.068 55.5678 156.246 56.3993 156.33C66.2614 157.212 74.5422 157.94 82.898 158.627C83.0214 158.637 83.1468 158.641 83.2715 158.641C84.126 158.607 84.9714 158.453 85.7826 158.182C86.8669 157.923 87.8291 157.299 88.5077 156.414C89.187 155.53 89.5415 154.44 89.5126 153.325C89.5552 152.196 89.1765 151.09 88.4487 150.226C87.7214 149.361 86.6976 148.798 85.5772 148.648C84.1759 148.439 82.7628 148.323 81.3458 148.3L80.8253 148.281C79.846 148.24 78.8773 148.25 77.8488 148.26L77.1885 148.265C77.2824 147.438 77.3854 146.639 77.4813 145.862C77.7438 143.766 77.9958 141.787 78.0496 139.803C78.3929 127.19 78.7716 112.303 78.9469 97.4996C78.9029 96.4941 79.0834 95.4919 79.4765 94.5652C79.869 93.6391 80.4637 92.8121 81.2165 92.1446C87.1891 86.4016 93.213 80.4132 99.1128 74.3467C102.464 70.9002 105.788 67.2897 109.001 63.7994C110.309 62.3765 111.625 60.9508 112.949 59.5217C118.768 64.7941 125.807 66.2494 134.45 63.9725C146.167 60.8877 153.129 53.8183 155.144 42.9697C155.219 42.669 155.332 42.3787 155.48 42.1064C155.561 41.9377 155.643 41.7693 155.714 41.5987C155.748 41.5154 155.765 41.4259 155.765 41.3359V33.9483C155.765 33.8767 155.754 33.8054 155.732 33.7374C155.661 33.5037 155.576 33.2706 155.491 33.0349ZM119.002 38.9189C113.976 45.7677 81.9601 78.5262 73.6633 85.1946L30.4925 40.0297L119.002 38.9189ZM122.946 48.148C124.719 46.0477 126.493 43.9414 128.268 41.8288C128.477 41.5807 128.691 41.3346 128.905 41.0898C129.535 40.4012 130.114 39.6687 130.64 38.8977C131.093 38.2533 131.403 37.5189 131.548 36.7447C131.694 35.9706 131.672 35.1747 131.484 34.4098C131.287 33.7387 130.947 33.1185 130.486 32.5926C130.025 32.0668 129.455 31.6475 128.815 31.3645C126.814 30.4791 124.655 30.0014 122.466 29.9589C118.973 29.8277 115.519 29.852 111.859 29.8775C110.737 29.8854 109.602 29.892 108.453 29.8968C109.799 27.7142 111.552 25.8108 113.617 24.2903C116.18 22.2365 119.173 20.7875 122.374 20.0524C125.575 19.3172 128.901 19.3143 132.104 20.044C140.263 21.761 145.198 28.8968 144.677 38.2247C144.579 40.4112 144.03 42.5539 143.066 44.5189C142.102 46.4838 140.743 48.229 139.074 49.6453C137.369 51.0704 135.389 52.129 133.256 52.7545C131.124 53.38 128.885 53.5591 126.68 53.2807C124.573 53.0412 122.931 52.2476 120.97 50.4933L122.946 48.148Z"/></g><defs><clipPath id="clip0"><rect width="154.896" height="158.834" fill="white" transform="translate(0.917725 0.463379)"/></clipPath></defs></svg>';
-const PROMOTER_BADGE_ICON = '<svg width="800px" height="800px" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg" fill="currentColor" aria-hidden="true" class="badge-icon badge-icon-left"><path fill-rule="evenodd" clip-rule="evenodd" d="M9.111 4.663A2 2 0 1 1 6.89 1.337a2 2 0 0 1 2.222 3.326zm-.555-2.494A1 1 0 1 0 7.444 3.83a1 1 0 0 0 1.112-1.66zm2.61.03a1.494 1.494 0 0 1 1.895.188 1.513 1.513 0 0 1-.487 2.46 1.492 1.492 0 0 1-1.635-.326 1.512 1.512 0 0 1 .228-2.321zm.48 1.61a.499.499 0 1 0 .705-.708.509.509 0 0 0-.351-.15.499.499 0 0 0-.5.503.51.51 0 0 0 .146.356zM3.19 12.487H5v1.005H3.19a1.197 1.197 0 0 1-.842-.357 1.21 1.21 0 0 1-.348-.85v-1.81a.997.997 0 0 1-.71-.332A1.007 1.007 0 0 1 1 9.408V7.226c.003-.472.19-.923.52-1.258.329-.331.774-.52 1.24-.523H4.6a2.912 2.912 0 0 0-.55 1.006H2.76a.798.798 0 0 0-.54.232.777.777 0 0 0-.22.543v2.232h1v2.826a.202.202 0 0 0 .05.151.24.24 0 0 0 .14.05zm7.3-6.518a1.765 1.765 0 0 0-1.25-.523H6.76a1.765 1.765 0 0 0-1.24.523c-.33.335-.517.786-.52 1.258v3.178a1.06 1.06 0 0 0 .29.734 1 1 0 0 0 .71.332v2.323a1.202 1.202 0 0 0 .35.855c.18.168.407.277.65.312h2a1.15 1.15 0 0 0 1-1.167V11.47a.997.997 0 0 0 .71-.332 1.006 1.006 0 0 0 .29-.734V7.226a1.8 1.8 0 0 0-.51-1.258zM10 10.454H9v3.34a.202.202 0 0 1-.06.14.17.17 0 0 1-.14.06H7.19a.21.21 0 0 1-.2-.2v-3.34H6V7.226c0-.203.079-.398.22-.543a.798.798 0 0 1 .54-.232h2.48a.778.778 0 0 1 .705.48.748.748 0 0 1 .055.295v3.228zm2.81 3.037H11v-1.005h1.8a.24.24 0 0 0 .14-.05.2.2 0 0 0 .06-.152V9.458h1V7.226a.777.777 0 0 0-.22-.543.798.798 0 0 0-.54-.232h-1.29a2.91 2.91 0 0 0-.55-1.006h1.84a1.77 1.77 0 0 1 1.24.523c.33.335.517.786.52 1.258v2.182c0 .273-.103.535-.289.733-.186.199-.44.318-.711.333v1.81c0 .319-.125.624-.348.85a1.197 1.197 0 0 1-.842.357zM4 1.945a1.494 1.494 0 0 0-1.386.932A1.517 1.517 0 0 0 2.94 4.52 1.497 1.497 0 0 0 5.5 3.454c0-.4-.158-.784-.44-1.067A1.496 1.496 0 0 0 4 1.945zm0 2.012a.499.499 0 0 1-.5-.503.504.504 0 0 1 .5-.503.509.509 0 0 1 .5.503.504.504 0 0 1-.5.503z"/></svg>';
+function injectStaticFilterAllIcons() {
+  document.querySelectorAll('.filter-all-icon').forEach(node => {
+    const label = node.dataset.filterLabel || node.nextElementSibling?.textContent || '';
+    node.innerHTML = filterAllIconForLabel(label);
+  });
+}
 
 function djBadgePill(name) {
   return `<span class="edj" onclick="event.stopPropagation();goToDJ('${escHtml(name)}')">${DJ_BADGE_ICON}${escHtml(name)}</span>`;
@@ -67,7 +69,7 @@ function bartenderBadgePill(name) {
 }
 
 function promoterBadgePill(name) {
-  return `<span class="epromoter">${PROMOTER_BADGE_ICON}${escHtml(name)}</span>`;
+  return `<span class="epromoter" onclick="event.preventDefault(); event.stopPropagation(); goToOrganizer('${encodeURIComponent(name)}')">${PROMOTER_BADGE_ICON}${escHtml(name)}</span>`;
 }
 
 try {
@@ -82,6 +84,21 @@ document.addEventListener('DOMContentLoaded', async () => {
   drawGrain();
   setupMobileNav();
   setupSubmitForm();
+
+  // Add social SVG icons to the static social buttons in the calendar sidebar
+  document.getElementById('tiktokLink')?.insertAdjacentHTML('beforeend', ICON_TIKTOK);
+  document.getElementById('facebookLink')?.insertAdjacentHTML('beforeend', ICON_FACEBOOK);
+  document.getElementById('instagramLink')?.insertAdjacentHTML('beforeend', ICON_INSTAGRAM);
+
+  // Add social SVG icons to the footer and footer social buttons
+  document.getElementById('footerInstagramLink')?.insertAdjacentHTML('afterbegin', ICON_INSTAGRAM);
+  document.getElementById('footerTiktokLink')?.insertAdjacentHTML('afterbegin', ICON_TIKTOK);
+  document.getElementById('footerFacebookLink')?.insertAdjacentHTML('afterbegin', ICON_FACEBOOK);
+  document.querySelectorAll('.social-links a[href*="instagram.com"]').forEach(el => el.insertAdjacentHTML('afterbegin', ICON_INSTAGRAM));
+  document.querySelectorAll('.social-links a[href*="tiktok.com"]').forEach(el => el.insertAdjacentHTML('afterbegin', ICON_TIKTOK));
+  document.querySelectorAll('.social-links a[href*="facebook.com"]').forEach(el => el.insertAdjacentHTML('afterbegin', ICON_FACEBOOK));
+
+  injectStaticFilterAllIcons();
 
   DATA = await loadData();
   DATA.organizers = buildOrganizersFromEvents(DATA.events);
@@ -447,8 +464,8 @@ const CALENDAR_TAG_GROUP_DEFS = [
   {
     key: 'access',
     label: 'Age & Access',
-    exact: ['18+', '21+', 'all ages', 'notaflof'],
-    keywords: ['18+', '21+', 'all ages', 'allages', 'accessible', 'free', 'pay what you can', 'NOTAFLOF']
+    exact: ['18+', '21+', 'all ages'],
+    keywords: ['18+', '21+', 'all ages', 'allages', 'accessible', 'free', 'pay what you can']
   },
 ];
 
@@ -457,6 +474,7 @@ let calendarFilterMenuBound = false;
 let calendarNeighborhoodOptions = [];
 let calendarVenueOptions = [];
 let calendarOrganizerOptions = [];
+let calendarAgeOptions = [];
 let calendarPerformerOptions = [];
 let pageFilterMenuBound = false;
 let venueNeighborhoodOptions = [];
@@ -464,6 +482,7 @@ const CALENDAR_COVER_OPTIONS = [
   { key: 'free', label: 'Free' },
   { key: 'paid', label: 'Paid' },
   { key: 'unknown', label: 'Unlisted' },
+  { key: 'notaflof', label: 'NOTAFLOF' },
 ];
 
 function normFilterKey(v) {
@@ -485,10 +504,113 @@ function tagMatchesGroup(tag, def) {
   return tagMatchesKeywords(tag, def.keywords || []);
 }
 
-function classifyCalendarTags(tags) {
+function isAgeTag(tag) {
+  const key = normFilterKey(tag);
+  return key === 'all ages' || key === 'allages' || /^\d{1,2}\+$/.test(key);
+}
+
+function tagGroupIcon(groupKey, label) {
+  const key = String(label || groupKey || '').trim().toLowerCase();
+  switch (key) {
+    case 'music':
+    case 'music genres':
+    case 'music-genres':
+      return ICON_MUSIC;
+    case 'performance':
+    case 'performances':
+      return ICON_PERFORMANCE;
+    case 'games':
+    case 'game nights':
+    case 'game-nights':
+      return ICON_GAMES;
+    case 'community':
+    case 'community events':
+    case 'community-events':
+      return ICON_COMMUNITY;
+    case 'wellness':
+    case 'sports':
+    case 'sports & wellness':
+    case 'sports--wellness':
+      return ICON_WELLNESS;
+    case 'nightlife':
+    case 'adult':
+      return ICON_NIGHTLIFE;
+    case 'night out':
+    case 'nights out':
+    case 'night-out':
+    case 'nights-out':
+      return ICON_NIGHT_OUT;
+    case 'access':
+    case 'age':
+    case 'age restrictions':
+    case 'age-restrictions':
+      return ICON_AGE;
+    case 'charity':
+      return ICON_CHARITY;
+    case 'food':
+    case 'food and drink':
+    case 'food-and-drink':
+      return ICON_FOOD;
+    case 'watch parties':
+    case 'watch-parties':
+      return ICON_WATCH_PARTIES;
+    case 'virtual':
+    case 'virtual events':
+    case 'virtual-events':
+      return ICON_VIRTUAL;
+    case 'pride':
+    case 'pride events':
+    case 'pride-events':
+      return ICON_PRIDE;
+    case 'holiday':
+    case 'holidays':
+      return ICON_HOLIDAY;
+    case 'education':
+      return ICON_EDUCATION;
+    case 'other':
+      return ICON_OTHER;
+    default:
+      return ICON_TAG;
+  }
+}
+
+function tagBadgeIconForTag(tag) {
+  try {
+    const key = (DATA && DATA.tagGroupMap && DATA.tagGroupMap.get(normFilterKey(tag))) || '';
+    return tagGroupIcon(key || 'other');
+  } catch (err) {
+    return ICON_TAG;
+  }
+}
+
+function classifyCalendarTags(tags, tagGroupMap = new Map(), groupDefs = []) {
   const sortedTags = [...tags].sort();
-  const groups = CALENDAR_TAG_GROUP_DEFS.map(def => ({ key: def.key, label: def.label, tags: [] }));
   const other = { key: 'other', label: 'Other', tags: [] };
+
+  console.log('groupDefs:', groupDefs);
+  if (groupDefs && groupDefs.length) {
+    const groups = groupDefs.map(def => ({
+      key: def.key,
+      label: def.label || def.key,
+      iconKey: def.iconKey || '',
+      tags: [],
+    }));
+    const groupsByKey = new Map(groups.map(g => [g.key, g]));
+
+    sortedTags.forEach(tag => {
+      const tagKey = normFilterKey(tag);
+      const groupKey = tagGroupMap.get(tagKey);
+      if (groupKey && groupsByKey.has(groupKey)) {
+        groupsByKey.get(groupKey).tags.push(tag);
+      } else {
+        other.tags.push(tag);
+      }
+    });
+
+    return [...groups.filter(g => g.tags.length), ...(other.tags.length ? [other] : [])];
+  }
+
+  const groups = CALENDAR_TAG_GROUP_DEFS.map(def => ({ key: def.key, label: def.label, tags: [] }));
 
   sortedTags.forEach(tag => {
     const match = CALENDAR_TAG_GROUP_DEFS.find(def => tagMatchesGroup(tag, def));
@@ -525,6 +647,22 @@ function collectFilterOptions(values) {
     .sort((a, b) => a.label.localeCompare(b.label));
 }
 
+function filterAllIconForLabel(label) {
+  switch (String(label || '').trim().toLowerCase()) {
+    case 'all events': return ICON_FILTER_ALL_EVENTS;
+    case 'all neighborhoods': return ICON_FILTER_ALL_NEIGHBORHOODS;
+    case 'all organizers': return PROMOTER_BADGE_ICON;
+    case 'all venues': return ICON_FILTER_ALL_VENUES;
+    case 'all ages': return ICON_FILTER_ALL_AGES;
+    case 'all cover types': return ICON_FILTER_ALL_COVER_TYPES;
+    case 'all performers': return ICON_PERFORMER;
+    case 'all venue types': return ICON_FILTER_ALL_VENUES;
+    case 'all residency types': return ICON_FILTER_ALL_EVENTS;
+    case 'all djs': return ICON_MUSIC;
+    default: return ICON_FILTER_ALL_EVENTS;
+  }
+}
+
 function buildSimpleCalendarMenu(menuId, allLabel, allCheckId, optionClass, options, toggleOptionFnName, toggleAllFnName) {
   const menu = document.getElementById(menuId);
   if (!menu) return;
@@ -533,7 +671,7 @@ function buildSimpleCalendarMenu(menuId, allLabel, allCheckId, optionClass, opti
     <div class="cal-filter-all-line">
       <label class="cal-filter-option cal-filter-all-option">
         <input type="checkbox" id="${allCheckId}" onchange="${toggleAllFnName}(this.checked)">
-        <span>${escHtml(allLabel)}</span>
+        <span class="cal-filter-group-icon" data-filter-label="${escHtml(allLabel)}">${filterAllIconForLabel(allLabel)}</span><span>${escHtml(allLabel)}</span>
       </label>
     </div>
     <div class="cal-filter-group">
@@ -552,28 +690,48 @@ function buildFilterChips() {
   const menu = document.getElementById('calendarFilterMenu');
   if (!menu) return;
 
+  calendarAgeOptions = collectFilterOptions(DATA.events.map(e => e.age).filter(Boolean));
+
   // Collect all unique tags across all events
   const tagSet = new Set();
   DATA.events.forEach(e => e.tags.forEach(t => tagSet.add(t)));
+
+  // Ensure NOTAFLOF and age-related tags are only handled by their own filters
+  [...tagSet].forEach(t => {
+    const key = normFilterKey(t);
+    if (key === 'notaflof' || isAgeTag(t)) tagSet.delete(t);
+  });
 
   calendarNeighborhoodOptions = collectFilterOptions(DATA.events.map(e => e.location));
   calendarVenueOptions = collectFilterOptions(DATA.events.map(e => e.venue));
   calendarOrganizerOptions = collectFilterOptions(DATA.events.flatMap(e => e.promoters || []));
   calendarPerformerOptions = collectFilterOptions(DATA.events.flatMap(e => e.performers || []));
 
-  calendarTagGroups = classifyCalendarTags([...tagSet]);
+  calendarTagGroups = classifyCalendarTags([...tagSet], DATA.tagGroupMap, DATA.tagGroups);
+
+  console.log('Classified calendar tags into groups:', calendarTagGroups);
+  // Ensure pride events, then music group appears first in the filter list
+  calendarTagGroups.sort((a,b) => {
+    if (a.key === 'pride-events') return -1;
+    if (b.key === 'pride-events') return 1;
+    if (a.key === 'music-genres') return -1;
+    if (b.key === 'music-genres') return 1;
+
+    return 0;
+  });
 
   menu.innerHTML = `
     <div class="cal-filter-all-line">
       <label class="cal-filter-option cal-filter-all-option">
         <input type="checkbox" id="calendarFilterAllCheck" onchange="toggleCalendarAll(this.checked)">
-        <span>All events</span>
+        <span class="cal-filter-group-icon">${filterAllIconForLabel('All events')}</span><span>All events</span>
       </label>
     </div>
   ` + calendarTagGroups.map(group => `
     <div class="cal-filter-group">
       <label class="cal-filter-group-title">
         <input type="checkbox" class="cal-group-check" data-group="${escHtml(group.key)}" onchange="toggleCalendarGroup('${escHtml(group.key)}', this.checked)">
+        <span class="cal-filter-group-icon">${tagGroupIcon(group.key, group.label)}</span>
         ${escHtml(group.label)}
       </label>
       <div class="cal-filter-options">
@@ -615,6 +773,16 @@ function buildFilterChips() {
     calendarVenueOptions,
     'toggleCalendarVenue',
     'toggleCalendarVenueAll'
+  );
+
+  buildSimpleCalendarMenu(
+    'calendarAgeMenu',
+    'All ages',
+    'calendarAgeAllCheck',
+    'cal-age-check',
+    calendarAgeOptions,
+    'toggleCalendarAge',
+    'toggleCalendarAgeAll'
   );
 
   buildSimpleCalendarMenu(
@@ -666,6 +834,7 @@ function syncCalendarMenuToggleState() {
     ['calendarNeighborhoodWrap', 'calendarNeighborhoodToggle'],
     ['calendarVenueWrap', 'calendarVenueToggle'],
     ['calendarOrganizerWrap', 'calendarOrganizerToggle'],
+    ['calendarAgeWrap', 'calendarAgeToggle'],
     ['calendarCoverWrap', 'calendarCoverToggle'],
     ['calendarPerformerWrap', 'calendarPerformerToggle'],
   ];
@@ -708,6 +877,10 @@ function toggleCalendarOrganizerMenu() {
 
 function toggleCalendarCoverMenu() {
   toggleCalendarMenuWrap('calendarCoverWrap');
+}
+
+function toggleCalendarAgeMenu() {
+  toggleCalendarMenuWrap('calendarAgeWrap');
 }
 
 function toggleCalendarPerformerMenu() {
@@ -884,6 +1057,27 @@ function toggleCalendarCover(encodedKey, checked) {
   renderEvents();
 }
 
+function toggleCalendarAge(encodedKey, checked) {
+  const key = decodeURIComponent(encodedKey || '');
+  if (!key) return;
+  if (checked) state.calAges.add(normFilterKey(key));
+  else state.calAges.delete(normFilterKey(key));
+  syncCalendarFilterUI();
+  updateCalendarFilterSummary();
+  renderEvents();
+}
+
+function toggleCalendarAgeAll(checked) {
+  if (!checked) {
+    syncCalendarFilterUI();
+    return;
+  }
+  state.calAges.clear();
+  syncCalendarFilterUI();
+  updateCalendarFilterSummary();
+  renderEvents();
+}
+
 function toggleCalendarCoverAll(checked) {
   if (!checked) {
     syncCalendarFilterUI();
@@ -970,6 +1164,7 @@ function syncCalendarFilterUI() {
   syncSimple('calendarNeighborhoodAllCheck', '#calendarNeighborhoodMenu .cal-neighborhood-check', state.calNeighborhoods);
   syncSimple('calendarVenueAllCheck', '#calendarVenueMenu .cal-venue-check', state.calVenues);
   syncSimple('calendarOrganizerAllCheck', '#calendarOrganizerMenu .cal-organizer-check', state.calOrganizers);
+  syncSimple('calendarAgeAllCheck', '#calendarAgeMenu .cal-age-check', state.calAges);
   syncSimple('calendarCoverAllCheck', '#calendarCoverMenu .cal-cover-check', state.calCovers);
   syncSimple('calendarPerformerAllCheck', '#calendarPerformerMenu .cal-performer-check', state.calPerformers);
 }
@@ -979,6 +1174,7 @@ function updateCalendarFilterSummary() {
   const neighborhoodToggle = document.getElementById('calendarNeighborhoodToggle');
   const venueToggle = document.getElementById('calendarVenueToggle');
   const organizerToggle = document.getElementById('calendarOrganizerToggle');
+  const ageToggle = document.getElementById('calendarAgeToggle');
   const coverToggle = document.getElementById('calendarCoverToggle');
   const performerToggle = document.getElementById('calendarPerformerToggle');
   if (!toggle) return;
@@ -992,6 +1188,7 @@ function updateCalendarFilterSummary() {
   if (neighborhoodToggle) renderCalendarToggleContent(neighborhoodToggle, 'Neighborhood', state.calNeighborhoods.size);
   if (venueToggle) renderCalendarToggleContent(venueToggle, 'Venues', state.calVenues.size);
   if (organizerToggle) renderCalendarToggleContent(organizerToggle, 'Organizers', state.calOrganizers.size);
+  if (ageToggle) renderCalendarToggleContent(ageToggle, 'Ages', state.calAges.size);
   if (coverToggle) renderCalendarToggleContent(coverToggle, 'Cover', state.calCovers.size);
   if (performerToggle) renderCalendarToggleContent(performerToggle, 'Performers', state.calPerformers.size);
   syncCalendarMenuToggleState();
@@ -1008,6 +1205,13 @@ function getCalendarRenderData() {
     events = events.filter(e => selectedTags.some(tag => e.tags.includes(tag)));
   }
 
+  if (state.calAges.size) {
+    events = events.filter(e => {
+      const age = normFilterKey(e.age || '');
+      return state.calAges.has(age);
+    });
+  }
+
   if (state.calNeighborhoods.size) {
     events = events.filter(e => state.calNeighborhoods.has(normFilterKey(e.location)));
   }
@@ -1021,7 +1225,14 @@ function getCalendarRenderData() {
   }
 
   if (state.calCovers.size) {
-    events = events.filter(e => state.calCovers.has(coverBucket(e)));
+    events = events.filter(e => {
+      // Match by cover bucket (free/paid/unknown)
+      const bucket = coverBucket(e);
+      if (state.calCovers.has(bucket)) return true;
+      // Special-case: NOTAFLOF is represented as a tag on events
+      if (state.calCovers.has('notaflof') && (e.tags || []).includes('notaflof')) return true;
+      return false;
+    });
   }
 
   if (state.calPerformers.size) {
@@ -1203,7 +1414,7 @@ function toggleCalendarSidebar() {
 
 function eventCardHTML(e) {
   const perfPills = e.performers.map(p =>
-    `<span class="eperf" onclick="event.stopPropagation();goToPerformer('${escHtml(p)}')">${escHtml(p)}</span>`
+    `<span class="eperf" onclick="event.stopPropagation();goToPerformer('${escHtml(p)}')">${ICON_PERFORMER}${escHtml(p)}</span>`
   ).join('');
   const djPills = e.djs.map(d => djBadgePill(d)).join('');
   const barPills = e.bartenders.map(b => bartenderBadgePill(b)).join('');
@@ -1218,7 +1429,7 @@ function eventCardHTML(e) {
     : '';
 
   let coverLabel = '';
-  if (e.cover && !isFree) {
+  if (e.cover) {
     let cov = String(e.cover || '').trim();
     cov = cov.replace(/pay what you can/i, 'PWYC');
     if (cov.length > 22) cov = cov.slice(0, 19) + '…';
@@ -1234,15 +1445,19 @@ function eventCardHTML(e) {
 
   const tagBadges = [
     e.vibe ? `<span class="etag etag-vibe">${escHtml(e.vibe)}</span>` : '',
-    e.type ? `<span class="etag etag-type">${escHtml(e.type)}</span>` : '',
-    e.age ? `<span class="etag etag-age">${escHtml(e.age)}</span>` : ''
+    ...(e.tags || []).filter(tag => !isAgeTag(tag)).map(tag => `<span class="etag etag-type">${tagBadgeIconForTag(tag)}${escHtml(tagLabel(tag))}</span>`),
+    e.age ? ageBadge(e.age) : ''
   ].filter(Boolean).join('');
+
+  const venueLine = e.venue
+    ? `<div class="evenue"><button type="button" class="event-card-venue-link" onclick="event.stopPropagation();showVenueDetail('${escHtml(e.venue)}')">${escHtml(e.venue)}</button><span>· ${escHtml(e.location)}</span></div>`
+    : `<div class="evenue">${escHtml(e.location)}</div>`;
 
   return `<div class="event-card" onclick="showEventDetail('${escHtml(String(e.id))}')">
     <div class="event-media">${thumbnail}</div>
     <div class="event-main">
       <div class="ename">${escHtml(e.name)}</div>
-      <div class="evenue">${escHtml(e.venue)}<span>· ${escHtml(e.location)}</span></div>
+      ${venueLine}
       ${tagBadges ? `<div class="etags">${tagBadges}</div>` : ''}
       ${perfPills     ? `<div class="eperfs">${perfPills}</div>`         : ''}
       ${djPills       ? `<div class="edjs">${djPills}</div>`             : ''}
@@ -1269,7 +1484,7 @@ function showEventDetail(eventId, pushState = true) {
   showPage('calendar', null, false);
 
   const perfPills = e.performers.map(p =>
-    `<span class="eperf" onclick="goToPerformer('${escHtml(p)}')">${escHtml(p)}</span>`
+    `<span class="eperf" onclick="goToPerformer('${escHtml(p)}')">${ICON_PERFORMER}${escHtml(p)}</span>`
   ).join('');
   const djPills = e.djs.map(d => djBadgePill(d)).join('');
   const barPills = e.bartenders.map(b => bartenderBadgePill(b)).join('');
@@ -1288,6 +1503,8 @@ function showEventDetail(eventId, pushState = true) {
        </div>`
     : '';
 
+  const venueLink = e.venue ? `<button type="button" class="event-detail-venue-link" onclick="showVenueDetail('${escHtml(e.venue)}')">${escHtml(e.venue)}</button>` : escHtml(e.venue);
+
   const content = `
     <div class="back-btn" onclick="backToCalendar()">&#8592; Back to calendar</div>
 
@@ -1296,7 +1513,7 @@ function showEventDetail(eventId, pushState = true) {
       <div class="event-detail-info">
         <div class="event-detail-date">${escHtml(e.day)}, ${escHtml(e.month)} ${escHtml(e.dateNum)}</div>
         <div class="event-detail-name">${escHtml(e.name)}</div>
-        <div class="event-detail-venue">${escHtml(e.venue)} <span>· ${escHtml(e.location)}</span></div>
+        <div class="event-detail-venue">${venueLink} <span>· ${escHtml(e.location)}</span></div>
 
         <div class="event-detail-meta-row">
           <div class="event-detail-meta-item">
@@ -1316,7 +1533,7 @@ function showEventDetail(eventId, pushState = true) {
         ${(() => {
           const detailTags = [
             e.vibe ? `<span class="etag etag-vibe">${escHtml(e.vibe)}</span>` : '',
-            e.type ? `<span class="etag etag-type">${escHtml(e.type)}</span>` : ''
+            ...(e.tags || []).filter(tag => !isAgeTag(tag)).map(tag => `<span class="etag etag-type">${tagBadgeIconForTag(tag)}${escHtml(tagLabel(tag))}</span>`)
           ].filter(Boolean).join('');
           return detailTags ? `<div class="etags" style="margin-bottom:1.5rem">${detailTags}</div>` : '';
         })()}
@@ -1354,6 +1571,18 @@ function backToCalendar() {
 }
 
 /* ── SHARED: social links ── */
+function socialIconForKey(key) {
+  switch (key) {
+    case 'instagram': return ICON_INSTAGRAM;
+    case 'tiktok': return ICON_TIKTOK;
+    case 'facebook': return ICON_FACEBOOK;
+    case 'youtube': return ICON_YOUTUBE;
+    case 'linktree': return ICON_LINK;
+    case 'website': return ICON_WEBSITE;
+    default: return ICON_TAG;
+  }
+}
+
 function socialsHTML(socials, style) {
   if (!socials) return '';
   const links = [
@@ -1368,7 +1597,7 @@ function socialsHTML(socials, style) {
   const btnStyle = style || '';
   return '<div class="profile-socials">' +
     links.map(l =>
-      '<a href="' + escHtml(l.url) + '" target="_blank" rel="noopener" class="social-link-btn" style="' + btnStyle + '">' + escHtml(l.label) + '</a>'
+      '<a href="' + escHtml(l.url) + '" target="_blank" rel="noopener" class="social-link-btn" style="' + btnStyle + '">' + socialIconForKey(l.key) + escHtml(l.label) + '</a>'
     ).join('') +
   '</div>';
 }
@@ -1421,7 +1650,7 @@ function buildPerformerChips() {
       <div class="cal-filter-group-title">
         <label class="cal-filter-option cal-filter-all-option">
           <input type="checkbox" id="perfAllCheck" onchange="togglePerformerAll(this.checked)">
-          <span>All performers</span>
+          <span class="cal-filter-group-icon">${ICON_PERFORMER}</span><span>All performers</span>
         </label>
       </div>
     </div>
@@ -1430,7 +1659,7 @@ function buildPerformerChips() {
         <div class="cal-filter-group-title">
           <label class="cal-filter-option cal-filter-all-option">
             <input type="checkbox" id="perfTagAllCheck" onchange="togglePerformerTagAll(this.checked)">
-            <span>All tags</span>
+            <span class="cal-filter-group-icon">${ICON_TAG}</span><span>All tags</span>
           </label>
         </div>
         <div class="cal-filter-options" style="grid-template-columns:1fr;">
@@ -1450,7 +1679,7 @@ function buildPeopleVenueMenu() {
       <div class="cal-filter-all-line">
         <label class="cal-filter-option cal-filter-all-option">
           <input type="checkbox" id="peopleVenueAllCheck" checked onchange="togglePeopleVenueAll(this.checked)">
-          <span>All Venues</span>
+          <span class="cal-filter-group-icon">${filterAllIconForLabel('All Venues')}</span><span>All Venues</span>
         </label>
       </div>
       <div class="cal-filter-options" style="grid-template-columns:1fr;">
@@ -1629,6 +1858,14 @@ function goToPerformer(name) {
   const p = DATA.performers.find(x => x.name === name);
   if (!p) return;
   showPerformerDetail(p.id);
+}
+
+function goToOrganizer(name) {
+  const decodedName = decodeURIComponent(name || '');
+  const targetId = makeOrganizerId(decodedName);
+  const org = DATA.organizers.find(x => x.id === targetId || normPersonId(x.name) === normPersonId(decodedName));
+  if (!org) return;
+  showOrganizerDetail(org.id);
 }
 
 /* ── DJS ── */
@@ -1950,7 +2187,7 @@ function buildVenueTypeChips() {
     <div class="cal-filter-all-line">
       <label class="cal-filter-option cal-filter-all-option">
         <input type="checkbox" id="venueTypeAllCheck" onchange="toggleVenueTypeAll(this.checked)">
-        <span>All venue types</span>
+        <span class="cal-filter-group-icon">${filterAllIconForLabel('All venue types')}</span><span>All venue types</span>
       </label>
     </div>
     <div class="cal-filter-group">
