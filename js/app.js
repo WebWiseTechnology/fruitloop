@@ -249,7 +249,10 @@ function setupMobileNav() {
   const toggle = document.getElementById('navToggle');
   const nav = document.getElementById('siteNav');
   if (toggle && nav) {
-    toggle.addEventListener('click', () => nav.classList.toggle('open'));
+    toggle.addEventListener('click', event => {
+      event.stopPropagation();
+      nav.classList.toggle('open');
+    });
   }
 
   document.querySelectorAll('.nav-dropdown-trigger').forEach(trigger => {
@@ -587,7 +590,6 @@ function classifyCalendarTags(tags, tagGroupMap = new Map(), groupDefs = []) {
   const sortedTags = [...tags].sort();
   const other = { key: 'other', label: 'Other', tags: [] };
 
-  console.log('groupDefs:', groupDefs);
   if (groupDefs && groupDefs.length) {
     const groups = groupDefs.map(def => ({
       key: def.key,
@@ -709,7 +711,6 @@ function buildFilterChips() {
 
   calendarTagGroups = classifyCalendarTags([...tagSet], DATA.tagGroupMap, DATA.tagGroups);
 
-  console.log('Classified calendar tags into groups:', calendarTagGroups);
   // Ensure pride events, then music group appears first in the filter list
   calendarTagGroups.sort((a,b) => {
     if (a.key === 'pride-events') return -1;
