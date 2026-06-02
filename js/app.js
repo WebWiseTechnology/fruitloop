@@ -1609,7 +1609,7 @@ function profilePhotoHTML(person, size) {
   var avClass = avatarClass(person.avatarColor);
   if (person.photoUrl) {
     return '<div class="p-photo" style="width:' + size + ';height:' + size + ';border-radius:12px;overflow:hidden;flex-shrink:0;border:1px solid var(--border2)">' +
-      '<img src="' + escHtml(person.photoUrl) + '" alt="' + escHtml(person.name) + '" style="width:100%;height:100%;object-fit:cover;display:block" loading="lazy">' +
+      '<img src="' + escHtml(person.photoUrl) + '" alt="' + escHtml(person.name) + '" style="width:100%;height:100%;object-fit:contain;object-position:center;display:block" loading="lazy">' +
       '</div>';
   }
   return '<div class="p-avatar ' + avClass + '" style="width:' + size + ';height:' + size + ';font-size:' + Math.round(parseInt(size)*0.35) + 'px">' + escHtml(person.initials) + '</div>';
@@ -1618,7 +1618,7 @@ function profilePhotoHTML(person, size) {
 function venuePhotoHTML(venue) {
   if (venue.photoUrl) {
     return '<div class="venue-banner venue-banner-photo" style="height:120px;overflow:hidden">' +
-      '<img src="' + escHtml(venue.photoUrl) + '" alt="' + escHtml(venue.name) + '" style="width:100%;height:100%;object-fit:cover;display:block" loading="lazy">' +
+      '<img src="' + escHtml(venue.photoUrl) + '" alt="' + escHtml(venue.name) + '" style="width:100%;height:100%;object-fit:contain;object-position:center;display:block" loading="lazy">' +
       '</div>';
   }
   var initials = venue.name.split(' ').map(function(w){return w[0];}).join('').slice(0,3).toUpperCase();
@@ -2745,8 +2745,8 @@ function syncVenueFilterUI() {
 function profileDetailHTML(person, events, type) {
   const avClass = avatarClass(person.avatarColor);
   const detailPhoto = person.photoUrl
-    ? ('<div class="detail-avatar" style="border-radius:14px;border:1px solid var(--border2);flex-shrink:0">' +
-       '<img src="' + escHtml(person.photoUrl) + '" alt="' + escHtml(person.name) + '" style="border-radius:14px;width:100%;height:100%;object-fit:cover;display:block; border:2px solid var(--red)">' +
+    ? ('<div class="detail-avatar">' +
+       '<img src="' + escHtml(person.photoUrl) + '" alt="' + escHtml(person.name) + '" style="border-radius:14px;width:100%;height:100%;object-fit:contain;object-position:center;display:block">' +
        '</div>')
     : ('<div class="detail-avatar ' + avClass + '">' + escHtml(person.initials) + '</div>');
   const extraInfo = type === 'dj'
@@ -2857,8 +2857,8 @@ function showVenueDetail(name, pushState = true) {
   }).join('');
 
   const photoSection = v.photoUrl
-    ? `<div style="border-radius:4px;overflow:hidden;border:1px solid var(--border);margin-bottom:1.5rem;max-width:500px">
-        <img src="${escHtml(v.photoUrl)}" alt="${escHtml(v.name)}" style="width:100%;display:block;object-fit:cover;max-height:280px">
+    ? `<div class="detail-avatar">
+        <img src="${escHtml(v.photoUrl)}" alt="${escHtml(v.name)}" style="width:100%;display:block;object-fit:contain;object-position: center;height: 100%; border-radius: 14px;">
        </div>`
     : '';
 
