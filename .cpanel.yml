@@ -1,4 +1,4 @@
 deployment:
   tasks:
     - export DEPLOYPATH=/home/fruitloopwebwise/public_html/
-    - /bin/cp -R * $DEPLOYPATH
+    - /bin/cp -R index.html css js icons images $DEPLOYPATH
