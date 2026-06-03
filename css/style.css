@@ -357,10 +357,26 @@ select option { background: var(--bg3); }
   border-bottom: 1px solid var(--border);
   background: var(--bg2);
   display: flex;
-  gap: 7px;
-  flex-wrap: wrap;
-  align-items: center;
+  flex-direction: column;
+  gap: 0.75rem;
   position: relative;
+}
+.filters-bar-top {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+.filters-bar-top .filter-label {
+  margin-right: 0;
+}
+.filters-bar-top .filters-collapse-btn {
+  margin-left: auto;
+}
+.filters-bar-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  align-items: stretch;
 }
 
 .page-filters {
@@ -458,6 +474,24 @@ select option { background: var(--bg3); }
   text-transform: uppercase;
   color: var(--text3);
   margin-right: 2px;
+}
+.filters-collapse-btn {
+  margin-left: auto;
+  border-radius: 10px;
+  padding: 6px 10px;
+  font-size: 12px;
+  background: linear-gradient(180deg, rgba(255,255,255,0.95), rgba(255, 246, 244, 0.9));
+  border: 1px solid rgba(160, 147, 179, 0.22);
+  color: var(--text2);
+}
+.filters-collapse-btn:hover { filter: brightness(1.03); }
+
+/* Collapsed filters: hide the filter row but keep the header row visible */
+.filters-bar.collapsed .filters-bar-row {
+  display: none;
+}
+.calendar-sidebar .filters-bar.collapsed .filters-bar-row {
+  display: none;
 }
 .mini-filter-label {
   font-size: 9px;
@@ -1674,8 +1708,8 @@ select option { background: var(--bg3); }
   max-height: 40rem;
   width: auto;
   height: auto;
-  min-height: 15rem;
-  min-width: 15rem;
+  min-height: 10rem;
+  min-width: 10rem;
   margin-top: 0.5rem;
   border-radius: 14px;
   display: flex;
@@ -2213,11 +2247,12 @@ select option { background: var(--bg3); }
 
 /* ── About page ── */
 .about-body {
-  max-width: 680px;
-  padding: 3rem 2rem;
-  display: flex;
-  flex-direction: column;
-  gap: 3rem;
+  /* max-width: 1100px; */
+  padding: 2rem;
+  display: grid;
+  grid-template-columns: 1fr 320px;
+  gap: 2.5rem;
+  align-items: start;
 }
 .about-section h2 {
   font-family: var(--font-display);
@@ -2232,6 +2267,38 @@ select option { background: var(--bg3); }
   line-height: 1.8;
   margin-bottom: 0.75rem;
 }
+
+/* Graham author photo and layout */
+.about-graham {
+  display: block;
+  margin-top: 2rem;
+}
+.about-graham h2 { margin: 0 0 0.6rem 0; }
+.about-graham-body {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  margin-top: 2rem;
+}
+.about-graham-photo {
+  max-width: 400px;
+  object-fit: contain;
+  border-radius: 12px;
+  border: 2px solid var(--red);
+  box-shadow: 0 12px 26px rgba(24,18,34,0.12);
+  flex-shrink: 0;
+}
+.about-graham-copy { min-width: 250px;  max-width: 600px; }
+
+@media (max-width: 740px) {
+  .about-graham-body { flex-direction: column; }
+  .about-graham-photo { width: 100%; height: auto; border-radius: 10px; }
+}
+
+@media (max-width: 900px) {
+  .about-graham-photo { max-width: 300px; }
+}
+
 .text-link {
   color: var(--purple);
   cursor: pointer;
@@ -2277,6 +2344,81 @@ select option { background: var(--bg3); }
   height: 16px;
   flex-shrink: 0;
 }
+
+/* Right-side follow panel for About page */
+#page-about .about-section.about-panel {
+  flex: 0 0 320px;
+  width: 320px;
+  height: auto;
+  margin-left: auto;
+  background: linear-gradient(180deg, var(--white), #fffaf9);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 2rem;
+  box-shadow: 0 18px 36px rgba(24,18,34,0.12);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  text-align: center;
+  gap: 0.75rem;
+}
+#page-about .about-section.about-panel h2 {
+  margin-bottom: 0.25rem;
+  font-size: 1.2rem;
+  color: var(--red);
+}
+#page-about .about-section.about-panel p {
+  color: var(--text2);
+  font-size: 0.95rem;
+}
+#page-about .about-section.about-panel .social-links {
+  display: flex;
+  gap: 0.6rem;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+#page-about .about-section.about-panel .social-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 8px 12px;
+  border-radius: 10px;
+  color: #fff;
+  font-weight:600;
+  font-size: 0.9rem;
+  box-shadow: 0 8px 18px rgba(24,18,34,0.12);
+  border: none;
+}
+#page-about .about-section.about-panel .social-btn:nth-child(1) { background: linear-gradient(180deg,var(--red),#a12f28); }
+#page-about .about-section.about-panel .social-btn:nth-child(2) { background: linear-gradient(180deg,#000,#222); }
+#page-about .about-section.about-panel .social-btn:nth-child(3) { background: linear-gradient(180deg,#2a5ab8,#22458c); }
+
+/* Stack sections on small screens: panel moves below content */
+@media (max-width: 900px) {
+  .about-body {
+    display: block;
+    padding: 1rem;
+  }
+  #page-about .about-section.about-panel {
+    width: 100%;
+    height: auto;
+    margin-left: 0;
+    padding: 1rem;
+    margin-top: 1rem;
+  }
+}
+
+/* Ensure non-panel sections occupy the left column */
+#page-about .about-body > .about-section:not(.about-panel) {
+  grid-column: 1;
+}
+#page-about .about-body > .about-section.about-panel {
+  grid-column: 2;
+  grid-row: 1;
+}
+
+/* style for fourth (email) social button */
+#page-about .about-section.about-panel .social-btn:nth-child(4) { background: linear-gradient(180deg,#0d0d0d,#222); }
 
 /* ── Submit form ── */
 .submit-wrap { max-width: 600px; padding: 2.5rem 2rem; }
@@ -2829,7 +2971,7 @@ select option { background: var(--bg3); }
 /* ── Event detail page ── */
 .event-detail-wrap {
   display: grid;
-  grid-template-columns: 280px 1fr;
+  grid-template-columns: 30rem 1fr;
   gap: 3rem;
   align-items: start;
   margin-top: 0.5rem;
@@ -2837,7 +2979,6 @@ select option { background: var(--bg3); }
 .event-detail-flier {
   border-radius: 4px;
   overflow: hidden;
-  border: 1px solid var(--border);
   position: sticky;
   top: 100px;
 }
@@ -2917,7 +3058,7 @@ select option { background: var(--bg3); }
   }
   .event-detail-flier {
     position: static;
-    max-width: 240px;
+    max-width: 300px;
   }
 }
 

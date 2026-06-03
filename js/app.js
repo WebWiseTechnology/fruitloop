@@ -912,27 +912,18 @@ function positionCalendarMenu(wrap) {
   const isMobile = window.innerWidth <= 640;
   const inSidebar = !!wrap.closest('.calendar-sidebar');
 
-  if (inSidebar) {
-    menu.style.position = 'absolute';
-    menu.style.top = 'calc(100% - 1px)';
-    menu.style.left = '0';
-    menu.style.right = '0';
-    menu.style.transform = '';
-    menu.style.width = '';
-    menu.style.maxHeight = isMobile ? '56vh' : '360px';
-    return;
-  }
+  // For sidebar and mobile, prefer anchoring the menu under the specific toggle
+  // so it appears directly beneath the button that was clicked instead of
+  // spanning the full filters bar width.
+  menu.style.position = 'absolute';
+  menu.style.top = 'calc(100% - 1px)';
+  menu.style.transform = '';
+  menu.style.width = '';
+  menu.style.maxHeight = isMobile ? '56vh' : '420px';
 
-  if (isMobile) {
-    menu.style.position = 'absolute';
-    menu.style.top = 'calc(100% - 1px)';
-    menu.style.left = '0';
-    menu.style.right = '0';
-    menu.style.transform = '';
-    menu.style.width = '';
-    menu.style.maxHeight = '60vh';
-    return;
-  }
+  // Default to left:0 (relative to wrap) then clamp like desktop logic below.
+  menu.style.left = '0px';
+  menu.style.right = 'auto';
 
   menu.style.position = 'absolute';
   menu.style.top = 'calc(100% - 1px)';
@@ -940,13 +931,11 @@ function positionCalendarMenu(wrap) {
   menu.style.width = '';
   menu.style.maxHeight = '420px';
 
-  menu.style.left = '0px';
-  menu.style.right = 'auto';
-
   const wrapRect = wrap.getBoundingClientRect();
   let rect = menu.getBoundingClientRect();
   const menuWidth = rect.width;
 
+  // Center the menu under the toggle (wrap) but clamp to viewport edges.
   const desiredLeft = (wrapRect.width / 2) - (menuWidth / 2);
   const minLeft = viewportPad - wrapRect.left;
   const maxLeft = (window.innerWidth - viewportPad) - wrapRect.left - menuWidth;
@@ -959,6 +948,22 @@ function positionCalendarMenu(wrap) {
     menu.style.left = `${viewportPad - wrapRect.left}px`;
   } else if (rect.right > window.innerWidth - viewportPad) {
     menu.style.left = `${(window.innerWidth - viewportPad) - wrapRect.left - menuWidth}px`;
+  }
+}
+
+/* ── Collapse calendar filters (calendar page) ── */
+let calendarFiltersCollapsed = false;
+function toggleCalendarFiltersCollapse() {
+  const el = document.getElementById('calendarFilters');
+  if (!el) return;
+  calendarFiltersCollapsed = !calendarFiltersCollapsed;
+  el.classList.toggle('collapsed', calendarFiltersCollapsed);
+  const btn = document.getElementById('calendarFiltersToggle');
+  if (btn) btn.textContent = calendarFiltersCollapsed ? 'Show' : 'Hide';
+  // Close any open menus when collapsing
+  if (calendarFiltersCollapsed) {
+    document.querySelectorAll('.calendar-filter-wrap.open').forEach(wrap => wrap.classList.remove('open'));
+    syncCalendarMenuToggleState();
   }
 }
 
@@ -1494,12 +1499,10 @@ function showEventDetail(eventId, pushState = true) {
   const isFreeDetail = !e.ticketUrl && (!e.cover || e.cover.toLowerCase().includes('free') || e.cover === '');
   const ticketBtn = e.ticketUrl
     ? `<a href="${escHtml(e.ticketUrl)}" target="_blank" rel="noopener"><button class="ticket-btn" style="font-size:12px;padding:10px 20px">Get tickets</button></a>`
-    : isFreeDetail
-      ? `<span class="free-badge" style="font-size:11px;padding:8px 14px">Free</span>`
-      : '';
+    : '';
 
   const flierSection = e.flierUrl
-    ? `<div class="event-detail-flier">
+    ? `<div class="event-detail-flier detail-avatar">
         <img src="${escHtml(e.flierUrl)}" alt="Flyer for ${escHtml(e.name)}">
        </div>`
     : '';
