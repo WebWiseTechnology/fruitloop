@@ -89,11 +89,16 @@ document.addEventListener('DOMContentLoaded', async () => {
   document.getElementById('tiktokLink')?.insertAdjacentHTML('beforeend', ICON_TIKTOK);
   document.getElementById('facebookLink')?.insertAdjacentHTML('beforeend', ICON_FACEBOOK);
   document.getElementById('instagramLink')?.insertAdjacentHTML('beforeend', ICON_INSTAGRAM);
+  document.getElementById('headerTiktokLink')?.insertAdjacentHTML('beforeend', ICON_TIKTOK);
+  document.getElementById('headerFacebookLink')?.insertAdjacentHTML('beforeend', ICON_FACEBOOK);
+  document.getElementById('headerInstagramLink')?.insertAdjacentHTML('beforeend', ICON_INSTAGRAM);
+  document.getElementById('headerMerchLink')?.insertAdjacentHTML('afterbegin', ICON_MERCH + ' ');
 
   // Add social SVG icons to the footer and footer social buttons
   document.getElementById('footerInstagramLink')?.insertAdjacentHTML('afterbegin', ICON_INSTAGRAM);
   document.getElementById('footerTiktokLink')?.insertAdjacentHTML('afterbegin', ICON_TIKTOK);
   document.getElementById('footerFacebookLink')?.insertAdjacentHTML('afterbegin', ICON_FACEBOOK);
+  document.getElementById('footerMerchLink')?.insertAdjacentHTML('afterbegin', ICON_MERCH + ' ');
   document.querySelectorAll('.social-links a[href*="instagram.com"]').forEach(el => el.insertAdjacentHTML('afterbegin', ICON_INSTAGRAM));
   document.querySelectorAll('.social-links a[href*="tiktok.com"]').forEach(el => el.insertAdjacentHTML('afterbegin', ICON_TIKTOK));
   document.querySelectorAll('.social-links a[href*="facebook.com"]').forEach(el => el.insertAdjacentHTML('afterbegin', ICON_FACEBOOK));
@@ -108,6 +113,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   buildPerformerChips();
   buildPeopleVenueMenu();
   setupPageFilterMenus();
+  initPageFilterCollapseButtons();
   renderEvents();
   renderPerformers();
   renderDJs();
@@ -298,6 +304,13 @@ function setupPageFilterMenus() {
     }
   });
 
+  window.addEventListener('resize', () => {
+    document.querySelectorAll('.page-filter-wrap.open').forEach(wrap => {
+      const toggle = wrap.querySelector('.calendar-filter-toggle');
+      if (toggle) positionPageFilterMenu(wrap.id, toggle.id);
+    });
+  });
+
   pageFilterMenuBound = true;
 }
 
@@ -334,6 +347,9 @@ function togglePageFilterMenu(wrapId, toggleId) {
   const toggle = document.getElementById(toggleId);
   if (toggle) toggle.classList.toggle('is-open', shouldOpen);
   syncPageFilterToggleState();
+  if (shouldOpen) {
+    requestAnimationFrame(() => positionPageFilterMenu(wrapId, toggleId));
+  }
 }
 
 function syncPageFilterToggleState() {
@@ -341,6 +357,73 @@ function syncPageFilterToggleState() {
     const toggle = wrap.querySelector('.calendar-filter-toggle');
     if (toggle) toggle.classList.toggle('is-open', wrap.classList.contains('open'));
   });
+}
+
+function positionPageFilterMenu(wrapId, toggleId) {
+  const wrap = document.getElementById(wrapId);
+  if (!wrap) return;
+  const menu = wrap.querySelector('.calendar-filter-menu');
+  if (!menu) return;
+  const toggle = document.getElementById(toggleId) || wrap.querySelector('.calendar-filter-toggle');
+  const viewportPad = 8;
+  const isMobile = window.innerWidth <= 640;
+
+  menu.style.position = 'absolute';
+  menu.style.transform = '';
+  menu.style.width = '';
+  menu.style.maxHeight = isMobile ? '60vh' : '420px';
+  menu.style.right = 'auto';
+
+  if (toggle) {
+    menu.style.top = `${toggle.offsetTop + toggle.offsetHeight - 1}px`;
+    menu.style.left = '0px';
+    let rect = menu.getBoundingClientRect();
+    const menuWidth = rect.width;
+    const desiredLeft = toggle.offsetLeft + (toggle.offsetWidth / 2) - (menuWidth / 2);
+    const clampedLeft = Math.min(Math.max(0, desiredLeft), wrap.offsetWidth - menuWidth);
+    menu.style.left = `${Math.max(0, clampedLeft)}px`;
+  } else {
+    menu.style.top = 'calc(100% - 1px)';
+    menu.style.left = '0px';
+  }
+}
+
+function initPageFilterCollapseButtons() {
+  document.querySelectorAll('.filters-bar.page-filters').forEach(bar => {
+    if (bar.querySelector('.page-filters-collapse-btn')) return;
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'sort-btn page-filters-collapse-btn';
+    btn.textContent = 'Hide';
+    btn.setAttribute('aria-label', 'Toggle filters');
+    btn.setAttribute('title', 'Show/hide filters');
+    btn.addEventListener('click', event => {
+      event.stopPropagation();
+      togglePageFiltersCollapse(bar.id || '', btn);
+    });
+    const firstToggle = bar.querySelector('.calendar-filter-wrap');
+    const heading = document.createElement('div');
+    heading.className = 'page-filters-heading';
+    if (firstToggle) {
+      bar.insertBefore(heading, firstToggle);
+    } else {
+      bar.appendChild(heading);
+    }
+    const label = bar.querySelector('.filter-label');
+    if (label) heading.appendChild(label);
+    heading.appendChild(btn);
+  });
+}
+
+function togglePageFiltersCollapse(barId, btn) {
+  const bar = document.getElementById(barId);
+  if (!bar) return;
+  const collapsed = bar.classList.toggle('collapsed');
+  if (btn) btn.textContent = collapsed ? 'Show' : 'Hide';
+  if (collapsed) {
+    bar.querySelectorAll('.page-filter-wrap.open').forEach(wrap => wrap.classList.remove('open'));
+    syncPageFilterToggleState();
+  }
 }
 
 /* ── Grain texture ── */
@@ -860,35 +943,35 @@ function setCalFilter() {
   renderEvents();
 }
 
-function toggleCalendarFilterMenu() {
-  toggleCalendarMenuWrap('calendarFilterWrap');
+function toggleCalendarFilterMenu(toggleEl) {
+  toggleCalendarMenuWrap('calendarFilterWrap', toggleEl);
 }
 
-function toggleCalendarNeighborhoodMenu() {
-  toggleCalendarMenuWrap('calendarNeighborhoodWrap');
+function toggleCalendarNeighborhoodMenu(toggleEl) {
+  toggleCalendarMenuWrap('calendarNeighborhoodWrap', toggleEl);
 }
 
-function toggleCalendarVenueMenu() {
-  toggleCalendarMenuWrap('calendarVenueWrap');
+function toggleCalendarVenueMenu(toggleEl) {
+  toggleCalendarMenuWrap('calendarVenueWrap', toggleEl);
 }
 
-function toggleCalendarOrganizerMenu() {
-  toggleCalendarMenuWrap('calendarOrganizerWrap');
+function toggleCalendarOrganizerMenu(toggleEl) {
+  toggleCalendarMenuWrap('calendarOrganizerWrap', toggleEl);
 }
 
-function toggleCalendarCoverMenu() {
-  toggleCalendarMenuWrap('calendarCoverWrap');
+function toggleCalendarCoverMenu(toggleEl) {
+  toggleCalendarMenuWrap('calendarCoverWrap', toggleEl);
 }
 
-function toggleCalendarAgeMenu() {
-  toggleCalendarMenuWrap('calendarAgeWrap');
+function toggleCalendarAgeMenu(toggleEl) {
+  toggleCalendarMenuWrap('calendarAgeWrap', toggleEl);
 }
 
-function toggleCalendarPerformerMenu() {
-  toggleCalendarMenuWrap('calendarPerformerWrap');
+function toggleCalendarPerformerMenu(toggleEl) {
+  toggleCalendarMenuWrap('calendarPerformerWrap', toggleEl);
 }
 
-function toggleCalendarMenuWrap(wrapId) {
+function toggleCalendarMenuWrap(wrapId, toggleEl) {
   const target = document.getElementById(wrapId);
   if (!target) return;
   const shouldOpen = !target.classList.contains('open');
@@ -900,42 +983,38 @@ function toggleCalendarMenuWrap(wrapId) {
   target.classList.toggle('open', shouldOpen);
   syncCalendarMenuToggleState();
   if (shouldOpen) {
-    requestAnimationFrame(() => positionCalendarMenu(target));
+    requestAnimationFrame(() => positionCalendarMenu(wrapId, toggleEl));
   }
 }
 
-function positionCalendarMenu(wrap) {
-  const menu = wrap?.querySelector('.calendar-filter-menu');
+function positionCalendarMenu(wrapId, toggleEl) {
+  const wrap = document.getElementById(wrapId);
+  if (!wrap) return;
+  const menu = wrap.querySelector('.calendar-filter-menu');
   if (!menu) return;
 
   const viewportPad = 8;
   const isMobile = window.innerWidth <= 640;
-  const inSidebar = !!wrap.closest('.calendar-sidebar');
+  const toggle = toggleEl || wrap.querySelector('.calendar-filter-toggle');
+  const wrapRect = wrap.getBoundingClientRect();
 
-  // For sidebar and mobile, prefer anchoring the menu under the specific toggle
-  // so it appears directly beneath the button that was clicked instead of
-  // spanning the full filters bar width.
   menu.style.position = 'absolute';
-  menu.style.top = 'calc(100% - 1px)';
   menu.style.transform = '';
   menu.style.width = '';
-  menu.style.maxHeight = isMobile ? '56vh' : '420px';
-
-  // Default to left:0 (relative to wrap) then clamp like desktop logic below.
+  menu.style.maxHeight = isMobile ? '60vh' : '420px';
   menu.style.left = '0px';
   menu.style.right = 'auto';
 
-  menu.style.position = 'absolute';
-  menu.style.top = 'calc(100% - 1px)';
-  menu.style.transform = '';
-  menu.style.width = '';
-  menu.style.maxHeight = '420px';
+  if (toggle) {
+    const offsetTop = toggle.offsetTop + toggle.offsetHeight - 1;
+    menu.style.top = `${offsetTop}px`;
+  } else {
+    menu.style.top = 'calc(100% - 1px)';
+  }
 
-  const wrapRect = wrap.getBoundingClientRect();
   let rect = menu.getBoundingClientRect();
   const menuWidth = rect.width;
 
-  // Center the menu under the toggle (wrap) but clamp to viewport edges.
   const desiredLeft = (wrapRect.width / 2) - (menuWidth / 2);
   const minLeft = viewportPad - wrapRect.left;
   const maxLeft = (window.innerWidth - viewportPad) - wrapRect.left - menuWidth;

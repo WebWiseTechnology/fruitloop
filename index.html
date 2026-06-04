@@ -50,7 +50,12 @@
           </div>
         </div>
         <div class="nav-item" data-page="venues" onclick="showPage('venues',this)">Venues</div>
-        <a class="nav-merch" href="https://fruitlooppvd.myshopify.com/" target="_blank" rel="noopener">Merch &#8599;</a>
+        <a id="headerMerchLink" class="nav-merch" href="https://fruitlooppvd.myshopify.com/" target="_blank" rel="noopener">Merch</a>
+        <div class="social-wrapper header-socials">
+          <a class="sort-btn tiktok-link" id="headerTiktokLink" href="https://www.tiktok.com/@fruit.loop.pvd" target="_blank" rel="noopener" aria-label="Open TikTok"></a>
+          <a class="sort-btn facebook-link" id="headerFacebookLink" href="https://www.facebook.com/groups/923286946177583" target="_blank" rel="noopener" aria-label="Open Facebook"></a>
+          <a class="sort-btn instagram-link" id="headerInstagramLink" href="https://www.instagram.com/fruit_looppvd/?hl=en" target="_blank" rel="noopener" aria-label="Open Instagram"></a>
+        </div>
       </nav>
     </div>
   </header>
@@ -87,31 +92,31 @@
                 </div>
                 <div class="filters-bar-row">
                   <div class="calendar-filter-wrap" id="calendarFilterWrap">
-                    <button class="sort-btn calendar-filter-toggle" id="calendarFilterToggle" onclick="toggleCalendarFilterMenu()">Event types</button>
+                    <button class="sort-btn calendar-filter-toggle" id="calendarFilterToggle" onclick="toggleCalendarFilterMenu(this)">Event types</button>
                     <div class="calendar-filter-menu" id="calendarFilterMenu"></div>
                   </div>
                 <div class="calendar-filter-wrap" id="calendarVenueWrap">
-                  <button class="sort-btn calendar-filter-toggle" id="calendarVenueToggle" onclick="toggleCalendarVenueMenu()">Venues</button>
+                  <button class="sort-btn calendar-filter-toggle" id="calendarVenueToggle" onclick="toggleCalendarVenueMenu(this)">Venues</button>
                   <div class="calendar-filter-menu calendar-filter-menu-narrow" id="calendarVenueMenu"></div>
                 </div>
                 <div class="calendar-filter-wrap" id="calendarNeighborhoodWrap">
-                  <button class="sort-btn calendar-filter-toggle" id="calendarNeighborhoodToggle" onclick="toggleCalendarNeighborhoodMenu()">Neighborhood</button>
+                  <button class="sort-btn calendar-filter-toggle" id="calendarNeighborhoodToggle" onclick="toggleCalendarNeighborhoodMenu(this)">Neighborhood</button>
                   <div class="calendar-filter-menu calendar-filter-menu-narrow" id="calendarNeighborhoodMenu"></div>
                 </div>
                 <div class="calendar-filter-wrap" id="calendarPerformerWrap">
-                  <button class="sort-btn calendar-filter-toggle" id="calendarPerformerToggle" onclick="toggleCalendarPerformerMenu()">Performers</button>
+                  <button class="sort-btn calendar-filter-toggle" id="calendarPerformerToggle" onclick="toggleCalendarPerformerMenu(this)">Performers</button>
                   <div class="calendar-filter-menu" id="calendarPerformerMenu"></div>
                 </div>
                 <div class="calendar-filter-wrap" id="calendarOrganizerWrap">
-                  <button class="sort-btn calendar-filter-toggle" id="calendarOrganizerToggle" onclick="toggleCalendarOrganizerMenu()">Organizers</button>
+                  <button class="sort-btn calendar-filter-toggle" id="calendarOrganizerToggle" onclick="toggleCalendarOrganizerMenu(this)">Organizers</button>
                   <div class="calendar-filter-menu calendar-filter-menu-narrow" id="calendarOrganizerMenu"></div>
                 </div>
                 <div class="calendar-filter-wrap" id="calendarAgeWrap">
-                  <button class="sort-btn calendar-filter-toggle" id="calendarAgeToggle" onclick="toggleCalendarAgeMenu()">Ages</button>
+                  <button class="sort-btn calendar-filter-toggle" id="calendarAgeToggle" onclick="toggleCalendarAgeMenu(this)">Ages</button>
                   <div class="calendar-filter-menu calendar-filter-menu-narrow" id="calendarAgeMenu"></div>
                 </div>
                 <div class="calendar-filter-wrap" id="calendarCoverWrap">
-                  <button class="sort-btn calendar-filter-toggle" id="calendarCoverToggle" onclick="toggleCalendarCoverMenu()">Cover</button>
+                  <button class="sort-btn calendar-filter-toggle" id="calendarCoverToggle" onclick="toggleCalendarCoverMenu(this)">Cover</button>
                   <div class="calendar-filter-menu calendar-filter-menu-narrow" id="calendarCoverMenu"></div>
                 </div>
                 </div>
@@ -543,7 +548,7 @@
           <svg width="20" height="20" viewBox="0 0 0.6 0.6" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M.05.15A.05.05 0 0 1 .1.1h.4a.05.05 0 0 1 .05.05v.3A.05.05 0 0 1 .5.5H.1A.05.05 0 0 1 .05.45zm.088 0L.3.292.462.15zM.5.183.316.344a.025.025 0 0 1-.033 0L.1.183V.45h.4z" fill="currentColor"/></svg>
           fruitlooppvd@gmail.com
         </a>
-        <a class="footer-social-link" href="https://fruitlooppvd.myshopify.com/" target="_blank" rel="noopener">Merch</a>
+        <a id="footerMerchLink" class="footer-social-link" href="https://fruitlooppvd.myshopify.com/" target="_blank" rel="noopener">Merch</a>
       </div>
       <div class="footer-copy">A community resource for Providence LGBTQIA+ nightlife</div>
       <div class="footer-webwise-copy">Website developed by <a class="webwise-link" href="https://webwisetechnology.com/" target="_blank" rel="noopener">Webwise Technology</a></div>
