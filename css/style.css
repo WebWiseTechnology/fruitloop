@@ -2144,7 +2144,7 @@ select option { background: var(--bg3); }
   }
   .venue-card .venue-banner {
     width: 160px;
-    min-width: 160px;
+    min-width: 120px;
     align-self: stretch;
     border-bottom: none;
     border-right: 1px solid rgba(200, 55, 45, 0.15);
@@ -2196,6 +2196,10 @@ select option { background: var(--bg3); }
   margin-bottom: 0;
   font-weight: 400;
   line-height: 1.08;
+  /* Allow long venue names to wrap gracefully on small cards */
+  white-space: normal;
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
 .venue-loc {
   font-size: 10px;
