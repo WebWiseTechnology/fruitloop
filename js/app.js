@@ -103,6 +103,11 @@ document.addEventListener('DOMContentLoaded', async () => {
   document.querySelectorAll('.social-links a[href*="tiktok.com"]').forEach(el => el.insertAdjacentHTML('afterbegin', ICON_TIKTOK));
   document.querySelectorAll('.social-links a[href*="facebook.com"]').forEach(el => el.insertAdjacentHTML('afterbegin', ICON_FACEBOOK));
 
+  // Add contact page SVG icons
+  document.getElementById('contactEventIcon')?.insertAdjacentHTML('afterbegin', ICON_FILTER_ALL_EVENTS);
+  document.getElementById('contactPerformerIcon')?.insertAdjacentHTML('afterbegin', ICON_PERFORMER);
+  document.getElementById('contactDjIcon')?.insertAdjacentHTML('afterbegin', ICON_MUSIC);
+
   injectStaticFilterAllIcons();
 
   DATA = await loadData();

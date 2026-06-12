@@ -1055,17 +1055,20 @@ select option { background: var(--bg3); }
 .calendar-shell {
   display: grid;
   grid-template-columns: minmax(330px, 0.8fr) minmax(0, 1.4fr);
-  grid-template-areas:
-    "sidebar events"
-    "embed events";
+  grid-template-areas: "leftcol events";
   gap: 1rem;
   padding: 1rem 0.5rem 2rem;
   align-items: start;
 }
-.calendar-sidebar { grid-area: sidebar; }
-.calendar-events-panel { grid-area: events; }
+.calendar-leftcol {
+  grid-area: leftcol;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  min-width: 0;
+}
+.calendar-events-panel { grid-area: events; min-width: 0; }
 .instagram-embed-panel {
-  grid-area: embed;
   display: flex;
   flex-direction: column;
   gap: 1rem;
@@ -1076,7 +1079,6 @@ select option { background: var(--bg3); }
   box-shadow: 0 20px 40px rgba(28, 15, 39, 0.08);
   min-height: 320px;
   overflow: auto;
-  align-self: start;
 }
 .instagram-embed-copy {
   display: flex;
@@ -1136,6 +1138,15 @@ select option { background: var(--bg3); }
   border-radius: 16px;
   background: #f8f5f8;
 }
+
+@media (max-width: 1100px) {
+  .instagram-embed-panel .instagram-media {
+    min-width: 0 !important;
+    max-width: 100% !important;
+    width: 100% !important;
+  }
+}
+
 .calendar-sidebar {
   min-width: 0;
   display: flex;
@@ -1183,6 +1194,10 @@ select option { background: var(--bg3); }
 
 .calendar-shell.sidebar-collapsed {
   grid-template-columns: 72px minmax(0, 1fr);
+}
+
+.calendar-shell.sidebar-collapsed .calendar-leftcol {
+  width: 72px;
 }
 
 .calendar-shell.sidebar-collapsed .calendar-sidebar {
@@ -1469,7 +1484,7 @@ select option { background: var(--bg3); }
   border-radius: 12px;
   background:
     linear-gradient(180deg, rgba(255,255,255,0.97), rgba(255, 250, 249, 0.96)) padding-box,
-    linear-gradient(135deg, rgba(200, 55, 45, 0.42), rgba(200, 136, 26, 0.22), rgba(40, 88, 168, 0.24)) border-box;
+    linear-gradient(135deg, rgba(200, 55, 45, 0.42), rgba(200, 136, 26, 0.2), rgba(102, 51, 170, 0.25)) border-box;
   border: 1px solid rgba(200, 55, 45, 0.16);
   box-shadow: 0 14px 30px rgba(94, 39, 33, 0.1);
   cursor: pointer;
@@ -2442,7 +2457,8 @@ select option { background: var(--bg3); }
 }
 
 /* Right-side follow panel for About page */
-#page-about .about-section.about-panel {
+#page-about .about-section.about-panel,
+#page-contact .about-section.about-panel {
   flex: 0 0 320px;
   width: 320px;
   height: auto;
@@ -2458,22 +2474,26 @@ select option { background: var(--bg3); }
   text-align: center;
   gap: 0.75rem;
 }
-#page-about .about-section.about-panel h2 {
+#page-about .about-section.about-panel h2,
+#page-contact .about-section.about-panel h2 {
   margin-bottom: 0.25rem;
   font-size: 1.2rem;
   color: var(--red);
 }
-#page-about .about-section.about-panel p {
+#page-about .about-section.about-panel p,
+#page-contact .about-section.about-panel p {
   color: var(--text2);
   font-size: 0.95rem;
 }
-#page-about .about-section.about-panel .social-links {
+#page-about .about-section.about-panel .social-links,
+#page-contact .about-section.about-panel .social-links {
   display: flex;
   gap: 0.6rem;
   justify-content: center;
   flex-wrap: wrap;
 }
-#page-about .about-section.about-panel .social-btn {
+#page-about .about-section.about-panel .social-btn,
+#page-contact .about-section.about-panel .social-btn {
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
@@ -2485,9 +2505,12 @@ select option { background: var(--bg3); }
   box-shadow: 0 8px 18px rgba(24,18,34,0.12);
   border: none;
 }
-#page-about .about-section.about-panel .social-btn:nth-child(1) { background: linear-gradient(180deg,var(--red),#a12f28); }
-#page-about .about-section.about-panel .social-btn:nth-child(2) { background: linear-gradient(180deg,#000,#222); }
-#page-about .about-section.about-panel .social-btn:nth-child(3) { background: linear-gradient(180deg,#2a5ab8,#22458c); }
+#page-about .about-section.about-panel .social-btn:nth-child(1),
+#page-contact .about-section.about-panel .social-btn:nth-child(1) { background: linear-gradient(180deg,var(--red),#a12f28); }
+#page-about .about-section.about-panel .social-btn:nth-child(2),
+#page-contact .about-section.about-panel .social-btn:nth-child(2) { background: linear-gradient(180deg,#000,#222); }
+#page-about .about-section.about-panel .social-btn:nth-child(3),
+#page-contact .about-section.about-panel .social-btn:nth-child(3) { background: linear-gradient(180deg,#2a5ab8,#22458c); }
 
 /* Stack sections on small screens: panel moves below content */
 @media (max-width: 900px) {
@@ -2495,7 +2518,8 @@ select option { background: var(--bg3); }
     display: block;
     padding: 1rem;
   }
-  #page-about .about-section.about-panel {
+  #page-about .about-section.about-panel,
+  #page-contact .about-section.about-panel {
     width: 100%;
     height: auto;
     margin-left: 0;
@@ -2505,16 +2529,109 @@ select option { background: var(--bg3); }
 }
 
 /* Ensure non-panel sections occupy the left column */
-#page-about .about-body > .about-section:not(.about-panel) {
+#page-about .about-body > .about-section:not(.about-panel),
+#page-contact .about-body > .about-section:not(.about-panel) {
   grid-column: 1;
 }
-#page-about .about-body > .about-section.about-panel {
+#page-about .about-body > .about-section.about-panel,
+#page-contact .about-body > .about-section.about-panel {
   grid-column: 2;
   grid-row: 1;
 }
 
 /* style for fourth (email) social button */
-#page-about .about-section.about-panel .social-btn:nth-child(4) { background: linear-gradient(180deg,#0d0d0d,#222); }
+#page-about .about-section.about-panel .social-btn:nth-child(4),
+#page-contact .about-section.about-panel .social-btn:nth-child(4) { background: linear-gradient(180deg,#0d0d0d,#222); }
+
+/* ── Contact page ── */
+.contact-links {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0.85rem;
+  margin-top: 1.5rem;
+  width: 100%;
+  max-width: 420px;
+}
+.contact-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  padding: 0.85rem 1.15rem;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background: linear-gradient(180deg, var(--white), #fffaf9);
+  box-shadow: 0 8px 18px rgba(24,18,34,0.08);
+  transition: all 0.18s ease;
+  text-decoration: none;
+  color: var(--text);
+  position: relative;
+}
+.contact-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 28px rgba(24,18,34,0.14);
+  border-color: var(--red);
+}
+.contact-btn-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  color: var(--black);
+  width: 20px;
+  height: 20px;
+}
+.contact-btn-icon svg {
+  width: 100%;
+  height: 100%;
+}
+.contact-btn-label {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--text);
+  flex: 1;
+}
+.contact-btn-arrow {
+  font-size: 1.1rem;
+  color: var(--text3);
+  transition: transform 0.18s ease;
+  flex-shrink: 0;
+}
+.contact-btn:hover .contact-btn-arrow {
+  transform: translate(2px, -2px);
+  color: var(--red);
+}
+
+/* ── Terms page ── */
+.terms-body {
+  max-width: 780px;
+  padding: 2.5rem 2rem;
+  margin: 0 auto;
+}
+.terms-section {
+  margin-bottom: 2rem;
+}
+.terms-section h2 {
+  font-family: var(--font-display);
+  font-size: 1.4rem;
+  letter-spacing: 0.05em;
+  color: var(--gold);
+  margin-bottom: 0.75rem;
+}
+.terms-section p {
+  font-size: 14px;
+  color: var(--text2);
+  line-height: 1.8;
+  margin-bottom: 0.5rem;
+}
+.terms-section a {
+  color: var(--purple);
+  text-decoration: underline;
+  transition: color 0.15s;
+}
+.terms-section a:hover {
+  color: var(--purple-dim);
+}
 
 /* ── Submit form ── */
 .submit-wrap { max-width: 600px; padding: 2.5rem 2rem; }
@@ -2817,6 +2934,11 @@ select option { background: var(--bg3); }
     font-size: 9px;
   }
   .hero-deco { display: none; }
+  .calendar-leftcol {
+    display: contents;
+  }
+  .calendar-sidebar { grid-area: sidebar; }
+  .instagram-embed-panel { grid-area: embed; }
   .calendar-shell {
     grid-template-columns: 1fr;
     grid-template-areas:
@@ -2840,8 +2962,7 @@ select option { background: var(--bg3); }
     grid-template-columns: 1fr;
     grid-template-areas:
       "sidebar"
-      "events"
-      "embed";
+      "events";
   }
   .calendar-sidebar {
     gap: 0.75rem;
@@ -2871,14 +2992,6 @@ select option { background: var(--bg3); }
   }
   .calendar-shell.sidebar-collapsed .calendar-sidebar-toggle {
     min-height: 0;
-  }
-  .instagram-embed-panel {
-    grid-area: embed;
-  }
-  .instagram-embed-panel .instagram-media {
-    min-width: 0 !important;
-    max-width: 100% !important;
-    width: 100% !important;
   }
   .calendar-events-panel { min-width: 0; }
   .calendar-layout {
