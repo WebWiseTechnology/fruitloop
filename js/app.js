@@ -50,6 +50,8 @@ const VENUE_MAP_CACHE_KEY = 'fruitloop_venue_geo_cache_v1';
 const VENUE_MAP_DEFAULT_CENTER = [41.820889, -71.412323];
 const VENUE_MAP_LOOP_CENTER = [41.820889, -71.412323];
 const VENUE_MAP_LOOP_RADIUS_M = 420;
+const CARTO_BASEMAPS_KEY = 'cb1_4geq_1_6e6270cc53ebfc01b5f083fa';
+const VENUE_MAP_TILE_URL = `https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png?key=${CARTO_BASEMAPS_KEY}`;
 
 // SVG icon constants and helpers were moved into js/svg-icons.js
 
@@ -2396,7 +2398,7 @@ function ensureVenueMap() {
 
   canvas.classList.add('is-branded-map');
 
-  L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+  L.tileLayer(VENUE_MAP_TILE_URL, {
     maxZoom: 19,
     attribution: '&copy; OpenStreetMap contributors &copy; CARTO'
   }).addTo(venueMap);
@@ -2604,7 +2606,7 @@ function ensureVenueDetailMap() {
 
   canvas.classList.add('is-branded-map');
 
-  L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+  L.tileLayer(VENUE_MAP_TILE_URL, {
     maxZoom: 19,
     attribution: '&copy; OpenStreetMap contributors &copy; CARTO'
   }).addTo(venueDetailMap);
